@@ -23,10 +23,13 @@
 #include "api.h"
 #include "faest_128f.h"
 #include "simpleserial.h"
+#include "randomness.h"
 
 unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
 unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
 unsigned char sig[FAEST_128F_SIGNATURE_SIZE] = {0};
+#define msg_size 16
+unsigned char msg[msg_size] = {0};
 
 static uint8_t get_pk(uint8_t* m, uint8_t inputLen) {
     simpleserial_put('p', CRYPTO_PUBLICKEYBYTES, pk);
@@ -34,38 +37,50 @@ static uint8_t get_pk(uint8_t* m, uint8_t inputLen) {
 }
 
 static uint8_t get_sk(uint8_t* m, uint8_t inputLen) {
-    simpleserial_put('o', CRYPTO_SECRETKEYBYTES, sk);
+    simpleserial_put('k', CRYPTO_SECRETKEYBYTES, sk);
+    return 0;
+}
+
+static uint8_t get_msg(uint8_t *m, uint8_t len) {
+    simpleserial_put('m', msg_size, msg);
     return 0;
 }
 
 static uint8_t key_gen(uint8_t *m, uint8_t len) {
-    faest_128f_keygen(pk, sk);
+    int res = faest_128f_keygen(pk, sk);
+    return res;
+}
+
+static uint8_t msg_gen(uint8_t *m, uint8_t len) {
+    rand_bytes(msg, msg_size);
     return 0;
 }
 
 static uint8_t sign(uint8_t *m, uint8_t len) {
-    const size_t msg_size = 12;
-    char msg[12] = {0};
-    size_t sig_size;
+    size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
+    trigger_high();
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
-
-    return 0;
+    trigger_low();
+    return res;
 }
 
 
 
 int main(void) {
     key_gen(0, 0);
-    // Kyber
+
     platform_init();
     init_uart();
     trigger_setup();
 
     simpleserial_init();
 
-    simpleserial_addcmd('k', 0, key_gen);
     simpleserial_addcmd('p', 0, get_pk);
-    simpleserial_addcmd('o', 0, get_sk);
+    simpleserial_addcmd('k', 0, get_sk);
+    simpleserial_addcmd('m', 0, get_msg);
+
+    simpleserial_addcmd('g', 0, key_gen);
+    simpleserial_addcmd('r', 0, msg_gen);
     simpleserial_addcmd('s', 0, sign);
     /*
     //Reserved simpleserial commands: 'v', 'y', 'w'

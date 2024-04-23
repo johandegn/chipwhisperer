@@ -68,10 +68,15 @@ ASRC += keccakf1600.S
 #EXTRA_OPTS = NO_EXTRA_OPTS
 #CFLAGS += -D$(EXTRA_OPTS)
 
+OPT = 3
 
 ifeq ($(CRYPTO_TARGET),)
   ${info No CRYPTO_TARGET passed - defaulting to TINYAES128C}
-  CRYPTO_TARGET = TINYAES128C
+  CRYPTO_TARGET = NONE
+endif
+
+ifeq ($(CRYPTO_OPTIONS),)
+CRYPTO_OPTIONS = NONE
 endif
 
 ${info Building for platform ${PLATFORM} with CRYPTO_TARGET=$(CRYPTO_TARGET)}
