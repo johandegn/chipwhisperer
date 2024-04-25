@@ -19,6 +19,7 @@
 #include "hal.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "api.h"
 #include "faest_128f.h"
@@ -38,6 +39,11 @@ static uint8_t get_pk(uint8_t* m, uint8_t inputLen) {
 
 static uint8_t get_sk(uint8_t* m, uint8_t inputLen) {
     simpleserial_put('k', CRYPTO_SECRETKEYBYTES, sk);
+    return 0;
+}
+
+static uint8_t set_sk(uint8_t* m, uint8_t inputLen) {
+    memcpy(sk, m, inputLen);
     return 0;
 }
 
@@ -77,6 +83,7 @@ int main(void) {
 
     simpleserial_addcmd('p', 0, get_pk);
     simpleserial_addcmd('k', 0, get_sk);
+    simpleserial_addcmd('q', 32, set_sk);
     simpleserial_addcmd('m', 0, get_msg);
 
     simpleserial_addcmd('g', 0, key_gen);
