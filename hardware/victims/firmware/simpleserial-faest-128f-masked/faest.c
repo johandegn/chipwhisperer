@@ -6,6 +6,8 @@
 #include <config.h>
 #endif
 
+#include "hal.h"
+
 #include "faest.h"
 #include "aes.h"
 #include "faest_aes.h"
@@ -290,6 +292,7 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
 	for (size_t i = 0; i < lambdaBytes; i++) {
 		owf_key_share1[i] = owf_key[i] ^ owf_key_share0[i];
 	}
+  trigger_high();
     H3_init(&h3_ctx, lambda);
     H3_update(&h3_ctx, owf_key_shares, lambdaBytes);
     H3_update(&h3_ctx, mu_shares, lambdaBytes * 2);

@@ -53,6 +53,7 @@ SRC += vole.c
 SRC += randomness.c
 SRC += aes-publicinputs.c
 SRC += randombytes.c
+SRC += rng_common_v1.c
 
 # Masked keccak sources
 SRC += KeccakHash.c
