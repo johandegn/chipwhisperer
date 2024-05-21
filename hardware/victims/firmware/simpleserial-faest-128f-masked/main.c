@@ -65,18 +65,17 @@ static uint8_t msg_gen(uint8_t *m, uint8_t len) {
 static uint8_t sign(uint8_t *m, uint8_t len) {
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
-    trigger_low();
     return res;
 }
 
 
 
 int main(void) {
-    key_gen(0, 0);
-
     platform_init();
     init_uart();
     trigger_setup();
+        
+    key_gen(0, 0);
 
     simpleserial_init();
 

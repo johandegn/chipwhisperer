@@ -140,7 +140,6 @@ int rand_bytes(uint8_t* dst, size_t len) {
 
 #include <stdint.h>
 #include <libopencm3/rng.h>
-
 int rand_mask(uint8_t *obuf, size_t len)
 {
     union

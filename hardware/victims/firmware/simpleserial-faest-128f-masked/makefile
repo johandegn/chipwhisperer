@@ -70,6 +70,7 @@ SRC += keccakf1600.c
 
 
 ASRC += aes-encrypt.S
+ASRC += extended-witness.S
 ASRC += aes-keyschedule.S
 ASRC += aes-publicinputs_.S
 ASRC += keccakf1600.S
@@ -82,7 +83,7 @@ ASRC += KeccakP-1600-mpc_.S
 
 ASFLAGS += -DSTM32F4
 
-OPT = 3
+OPT = 2
 
 ifeq ($(CRYPTO_TARGET),)
   ${info No CRYPTO_TARGET passed - defaulting to TINYAES128C}
