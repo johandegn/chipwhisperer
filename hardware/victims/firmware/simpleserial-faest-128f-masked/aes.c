@@ -908,6 +908,7 @@ uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_s
       // Step 15
 
       sub_bytes_masked(state_share, block_words);
+      trigger_low();
       // Step 16
       shift_row(state_share[0], block_words);
       shift_row(state_share[1], block_words);

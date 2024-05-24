@@ -4,6 +4,16 @@
 
 bf8_square_masked:
     push    {r3, r4, r5, r6, r7, lr}    // Save registers
+    
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     lr, #0
+
     ldrb    r7, [r0, #0]                // Load in_share[0] into r7
     mov     r4, r0                      // r4 = in_share_ptr
     mov     r6, r1                      // r6 = out_share_ptr
@@ -32,12 +42,32 @@ bf8_square_masked:
     bl      bf8_mul                     // r0 = in_share[1] * in_share[1]
     eors    r4, r0                      // Add prev two results
     strb    r4, [r6, #1]                // Store result in out_share[1]
+
+    mov     r0, #0
+    mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     lr, #0
     pop     {r3, r4, r5, r6, r7, pc}    // Return
 
 
 .global bf8_mul_masked
 bf8_mul_masked:
     stmdb   sp!, {r4, r5, r6, r7, r8, lr}
+    
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     lr, #0
+
     ldrb.w  r8, [r0]                    // Load A[0] into r8
     mov     r4, r1                      // r4 = B_ptr
     mov     r7, r0                      // r7 = A_ptr
@@ -67,11 +97,35 @@ bf8_mul_masked:
     bl      bf8_mul                     // r0 = A[1] * B[1]
     eors    r5, r0                      // Add prev two results
     strb    r5, [r6, #1]                // Store result in out[1]
+    
+    mov     r0, #0
+    mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     lr, #0
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
 
 .global compute_sbox_masked
 compute_sbox_masked:
     stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     r9, #0
+    mov     sl, #0
+    mov     fp, #0
+    mov     lr, #0
+
     sub     sp, #20
     mov     r7, r1
     movs    r3, #0
@@ -126,13 +180,36 @@ label_1:
     eor.w   r3, r3, #99     @ 0x63
     strb    r3, [r1, #1]
     add     sp, #20
+
+    mov     r0, #0
+    mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     r9, #0
+    mov     sl, #0
+    mov     fp, #0
+    mov     lr, #0
     ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
     nop
 
 .global sub_bytes_masked
 sub_bytes_masked:
-    cbz     r1, end
     stmdb   sp!, {r4, r5, r6, r7, r8, lr}
+
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     lr, #0
+
     movs    r7, #0
     sub     sp, #8
     mov     r8, r1
@@ -145,6 +222,7 @@ loop_1:
     strb.w  r2, [sp]
     mov     r3, #0
     strb.w  r3, [sp, #1]
+    
     ldrb.w  r2, [r4], #1
     strb.w  r2, [sp]
     ldrb    r3, [r4, #31]
@@ -152,6 +230,8 @@ loop_1:
     add     r1, sp, #4
     mov     r0, sp
     strh.w  r6, [sp, #4]
+    mov     r2, #0
+    mov     r3, #0
     bl      compute_sbox_masked
     mov     r2, #0
     mov     r3, #0
@@ -166,6 +246,15 @@ loop_1:
     add.w   r5, r5, #4
     bne.n   loop_2
     add     sp, #8
+
+    mov     r0, #0
+    mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     lr, #0
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
-end:
-    bx      lr
