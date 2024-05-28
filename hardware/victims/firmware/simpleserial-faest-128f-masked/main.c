@@ -25,6 +25,7 @@
 #include "faest_128f.h"
 #include "simpleserial.h"
 #include "randomness.h"
+#include "fields.h"
 
 unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
 unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
@@ -53,8 +54,10 @@ static uint8_t get_msg(uint8_t *m, uint8_t len) {
 }
 
 static uint8_t key_gen(uint8_t *m, uint8_t len) {
-    int res = faest_128f_keygen(pk, sk);
-    return res;
+    //int res = faest_128f_keygen(pk, sk);
+    //return res;
+    rand_bytes(&sk[0], CRYPTO_SECRETKEYBYTES);
+    return 0;
 }
 
 static uint8_t msg_gen(uint8_t *m, uint8_t len) {
@@ -62,10 +65,54 @@ static uint8_t msg_gen(uint8_t *m, uint8_t len) {
     return 0;
 }
 
+void bf8_square_masked(bf8_t in_share[2], bf8_t out_share[2]);
+void bf8_mul_masked(bf8_t a[2], bf8_t b[2], bf8_t out_share[2]);
+void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]);
+//void pipeline_test(bf8_t in_0, bf8_t in_1, bf8_t rand_1, bf8_t rand_2);
+
 static uint8_t sign(uint8_t *m, uint8_t len) {
+    /* pipeline test
+    bf8_t in_share[2] = {msg[0], 0};
+    in_share[1] = in_share[0] ^ sk[0];
+    bf8_t out_share[2] = {0, 0};
+    pipeline_test(in_share[0], in_share[1], msg[1], msg[2]);
+    */
+
+    /* inv_masked
+    */
+    bf8_t in_share[2] = {msg[0], 0};
+    in_share[1] = in_share[0] ^ sk[0];
+    bf8_t out_share[2] = {0, 0};
+    trigger_high();
+    bf8_inv_masked(in_share, out_share);
+    trigger_low();
+
+    /* mul_masked
+    bf8_t a_share[2] = {msg[0], 0};
+    a_share[1] = a_share[0] ^ sk[0];
+    bf8_t b_share[2] = {msg[1], 0};
+    b_share[1] = b_share[0] ^ sk[1];
+    bf8_t out_share[2] = {0, 0};
+    trigger_high();
+    bf8_mul_masked(a_share, b_share, out_share);
+    trigger_low();
+    */
+
+    /* square_masked
+    bf8_t in_share[2] = {msg[0], 0};
+    in_share[1] = in_share[0] ^ sk[0];
+    bf8_t out_share[2] = {0, 0};
+    trigger_high();
+    bf8_square_masked(in_share, out_share);
+    trigger_low();
+    */
+    
+    /*
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
-    return res;
+    return res
+    */
+    return 0;
 }
 
 

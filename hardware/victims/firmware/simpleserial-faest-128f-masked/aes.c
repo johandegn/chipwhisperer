@@ -605,7 +605,7 @@ void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]) {
 void compute_sbox_masked(bf8_t in[2], bf8_t out[2]);
 
 /*
-static void compute_sbox_masked(bf8_t in[2], bf8_t out[2]) {
+void compute_sbox_masked(bf8_t in[2], bf8_t out[2]) {
   bf8_t out_share[2] = {0};
   bf8_inv_masked(in, out_share);
 

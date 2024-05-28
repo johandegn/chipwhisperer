@@ -32,6 +32,7 @@ bf8_t bf8_rand(void) {
   return ret;
 }
 
+/*
 bf8_t bf8_mul(bf8_t lhs, bf8_t rhs) {
   bf8_t result = 0;
   for (unsigned int idx = 0; idx < 7; ++idx) {
@@ -41,6 +42,7 @@ bf8_t bf8_mul(bf8_t lhs, bf8_t rhs) {
   }
   return result ^ (-(rhs >> 7) & lhs);
 }
+*/
 
 static bf8_t bf8_square(bf8_t lhs) {
   bf8_t result = 0;
