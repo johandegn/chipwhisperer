@@ -18,7 +18,15 @@ pipeline_test:
 // r1 = rhs (this is a share value)
 bf8_mul:
     mov.w   ip, #0
+    orr     ip, ip, ip                  // Clear (pipeline)
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+
     push    {r4, lr}
+    eor     r3, ip, ip                  // Clear
+    eor     r4, ip, ip                  // Clear
     mov     lr, ip
 mul_label:
     eor     r2, ip, ip                  // Clear
@@ -43,12 +51,35 @@ mul_label:
     orr     ip, ip, ip                  // Clear (pipeline)
     eor.w   r0, lr, r1
     uxtb    r0, r0
+    eor     r1, ip, ip                  // Clear
+    eor     r2, ip, ip                  // Clear
+    eor     r3, ip, ip                  // Clear
+    eor     r4, ip, ip                  // Clear
     pop     {r4, pc}
     nop
 
 .global bf8_square_masked
 bf8_square_masked:
+    orr     ip, ip, ip                  // Clear (pipeline)
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
     push    {r3, r4, r5, r6, r7, lr}
+    eor     r2, r0, r0                  // Clear ? we dont use though (but bf8_mul does)
+    eor     r3, r0, r0                  // Clear
+    eor     r4, r0, r0                  // Clear
+    eor     r5, r0, r0                  // Clear
+    eor     r6, r0, r0                  // Clear
+    eor     r7, r0, r0                  // Clear
     ldrb    r7, [r0, #0]
     mov     r4, r0
     mov     r6, r1
@@ -79,6 +110,14 @@ bf8_square_masked:
     bl      bf8_mul                     // s1 * s1
     eors    r4, r0
     strb    r4, [r6, #1]
+    eor     r0, r0, r0                  // Clear
+    eor     r1, r0, r0                  // Clear
+    eor     r2, r0, r0                  // Clear
+    eor     r3, r0, r0                  // Clear
+    eor     r4, r0, r0                  // Clear
+    eor     r5, r0, r0                  // Clear
+    eor     r6, r0, r0                  // Clear
+    eor     r7, r0, r0                  // Clear
     pop     {r3, r4, r5, r6, r7, pc}
 
 .global bf8_mul_masked
@@ -86,7 +125,25 @@ bf8_square_masked:
 // r1 b_share_ptr
 // r2 out_share_ptr
 bf8_mul_masked:
+    orr     ip, ip, ip                  // Clear (pipeline)
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    push    {lr}                        // Clear
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
+    pop     {lr}                        // ^^^^^
     stmdb   sp!, {r4, r5, r6, r7, r8, lr}
+    eor     r4, r2, r2                  // Clear
+    eor     r5, r2, r2                  // Clear
+    eor     r6, r2, r2                  // Clear
+    eor     r7, r2, r2                  // Clear
+    eor     r8, r2, r2                  // Clear
     ldrb.w  r8, [r0]
     mov     r4, r1
     mov     r7, r0
@@ -114,27 +171,47 @@ bf8_mul_masked:
     bl      bf8_mul
     eors    r5, r0
     strb    r5, [r6, #1]
+    eor     r0, r2, r2                  // Clear
+    eor     r1, r2, r2                  // Clear
+    eor     r2, r2, r2                  // Clear
+    eor     r3, r2, r2                  // Clear
+    eor     r4, r2, r2                  // Clear
+    eor     r5, r2, r2                  // Clear
+    eor     r6, r2, r2                  // Clear
+    eor     r7, r2, r2                  // Clear
+    eor     r8, r2, r2                  // Clear
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
 
 .global bf8_inv_masked 
 bf8_inv_masked:
+    push    {r3}
+    push    {r3}
+    push    {r3}
+    pop     {r3}
+    pop     {r3}
+    pop     {r3}
     push    {r4, r5, lr}
+    eor     r2, r1, r1                  // Clear
+    eor     r3, r1, r1                  // Clear
+    eor     r4, r1, r1                  // Clear
+    eor     r5, r1, r1                  // Clear
+    eor     r5, r1, r1                  // Clear
     sub     sp, #44 @ 0x2c
     movs    r3, #0
     mov     r5, r0
     mov     r4, r1
     mov     r1, sp
     // NOTE change to str.w seems to help
-    strh.w  r3, [sp]
-    strh.w  r3, [sp, #4]
-    strh.w  r3, [sp, #8]
-    strh.w  r3, [sp, #12]
-    strh.w  r3, [sp, #16]
-    strh.w  r3, [sp, #20]
-    strh.w  r3, [sp, #24]
-    strh.w  r3, [sp, #28]
-    strh.w  r3, [sp, #32]
-    strh.w  r3, [sp, #36]   @ 0x24
+    str.w  r3, [sp]
+    str.w  r3, [sp, #4]
+    str.w  r3, [sp, #8]
+    str.w  r3, [sp, #12]
+    str.w  r3, [sp, #16]
+    str.w  r3, [sp, #20]
+    str.w  r3, [sp, #24]
+    str.w  r3, [sp, #28]
+    str.w  r3, [sp, #32]
+    str.w  r3, [sp, #36]   @ 0x24
     bl      bf8_square_masked
     add     r2, sp, #4
     mov     r0, r5
@@ -190,7 +267,7 @@ compute_sbox_masked:
     add     r6, sp, #8
 sbox_label:
     // clear all __paritysi2 store points
-    // this guy leaks, i know it.
+    // this guy leaks, i know it. line below
     ldrb    r5, [r6, #0]
     // clear r0
     and.w   r0, r5, #241    @ 0xf1
