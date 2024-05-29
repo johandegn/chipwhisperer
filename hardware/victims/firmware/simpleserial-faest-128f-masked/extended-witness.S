@@ -59,7 +59,7 @@ mul_label:
     nop
 
 .global bf8_square_masked
-bf8_square_masked:
+bf8_square_masked: // does this approach keep the value secret?
     orr     ip, ip, ip                  // Clear (pipeline)
     push    {lr}                        // Clear
     push    {lr}                        // Clear
@@ -73,13 +73,14 @@ bf8_square_masked:
     pop     {lr}                        // ^^^^^
     pop     {lr}                        // ^^^^^
     pop     {lr}                        // ^^^^^
-    push    {r3, r4, r5, r6, r7, lr}
-    eor     r2, r0, r0                  // Clear ? we dont use though (but bf8_mul does)
+    push    {r3, r4, r5, r6, r7, r8, lr}
+    eor     r2, r0, r0                  // Clear ? we dont use though
     eor     r3, r0, r0                  // Clear
     eor     r4, r0, r0                  // Clear
     eor     r5, r0, r0                  // Clear
     eor     r6, r0, r0                  // Clear
     eor     r7, r0, r0                  // Clear
+    eor     r8, r0, r0                  // Clear
     ldrb    r7, [r0, #0]
     mov     r4, r0
     mov     r6, r1
@@ -87,19 +88,19 @@ bf8_square_masked:
     mov     r1, r7
     bl      bf8_mul                     // s0 * s0
     eor     r1, r4, r4                  // Clear
-    ldrb    r1, [r4, #1]
+    ldrb    r1, [r4, #1] // NOTE
     // Possible pipeline leak FIXME: mby remove (no leak)..?
-    mov     r5, r0
+    mov     r8, r0
     eor     r0, r4, r4                  // Clear
     mov     r0, r7
     bl      bf8_mul                     // s0 * s1
-    eors    r5, r0
-    strb    r5, [r6, #0]
+    eors    r8, r0
+    //strb    r5, [r6, #0] // NOTE this guy
     eor     r5, r4, r4                  // Clear
     ldrb    r5, [r4, #1]
     eor     r1, r4, r4                  // Clear
-    ldrb    r1, [r4, #0]
-    eor     r0, r4, r4                  // Clear (pipeline)
+    ldrb    r1, [r4, #0] // NOTE
+    eor     r0, r4, r4                  // Clear
     // leakage if a share is 0
     mov     r0, r5
     bl      bf8_mul                     // s1 * s0
@@ -109,16 +110,30 @@ bf8_square_masked:
     mov     r0, r5
     bl      bf8_mul                     // s1 * s1
     eors    r4, r0
-    strb    r4, [r6, #1]
-    eor     r0, r0, r0                  // Clear
-    eor     r1, r0, r0                  // Clear
-    eor     r2, r0, r0                  // Clear
-    eor     r3, r0, r0                  // Clear
-    eor     r4, r0, r0                  // Clear
-    eor     r5, r0, r0                  // Clear
-    eor     r6, r0, r0                  // Clear
-    eor     r7, r0, r0                  // Clear
-    pop     {r3, r4, r5, r6, r7, pc}
+    //strb    r4, [r6, #1] // NOTE this guy
+    eor     r5, r6, r6                  // Clear
+    orr     r5, r8, r4, lsl #8
+
+    //lsl     r5, r4, #8
+    //orr     r6, r6, r6                  // Clear (pipeline)
+    //eor     r4, r6, r6                  // Clear
+    //eor     r4, r8, r5
+    //orr     r6, r6, r6                  // Clear (pipeline)
+    //strh    r4, [r6, #0]
+
+    orr     r6, r6, r6                  // Clear (pipeline)
+    strh    r5, [r6] // FIXME this store is a leak
+
+    eor     r0, r6, r6                  // Clear
+    eor     r1, r6, r6                  // Clear
+    eor     r2, r6, r6                  // Clear
+    eor     r3, r6, r6                  // Clear
+    eor     r4, r6, r6                  // Clear
+    eor     r5, r6, r6                  // Clear
+    eor     r6, r6, r6                  // Clear
+    eor     r7, r6, r6                  // Clear
+    eor     r8, r6, r6                  // Clear
+    pop     {r3, r4, r5, r6, r7, r8, pc}
 
 .global bf8_mul_masked
 // r0 a_share_ptr
@@ -138,12 +153,13 @@ bf8_mul_masked:
     pop     {lr}                        // ^^^^^
     pop     {lr}                        // ^^^^^
     pop     {lr}                        // ^^^^^
-    stmdb   sp!, {r4, r5, r6, r7, r8, lr}
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, lr}
     eor     r4, r2, r2                  // Clear
     eor     r5, r2, r2                  // Clear
     eor     r6, r2, r2                  // Clear
     eor     r7, r2, r2                  // Clear
     eor     r8, r2, r2                  // Clear
+    eor     r9, r2, r2                  // Clear
     ldrb.w  r8, [r0]
     mov     r4, r1
     mov     r7, r0
@@ -153,11 +169,11 @@ bf8_mul_masked:
     bl      bf8_mul
     eor     r1, r6, r6                  // Clear
     ldrb    r1, [r4, #1]
-    mov     r5, r0
+    mov     r9, r0
     mov     r0, r8
     bl      bf8_mul
-    eors    r5, r0
-    strb    r5, [r6, #0]
+    eors    r9, r0
+    //strb    r5, [r6, #0] // NOTE this guy
     ldrb    r7, [r7, #1]
     eor     r1, r6, r6                  // Clear
     ldrb    r1, [r4, #0]
@@ -170,17 +186,23 @@ bf8_mul_masked:
     mov     r0, r7
     bl      bf8_mul
     eors    r5, r0
-    strb    r5, [r6, #1]
-    eor     r0, r2, r2                  // Clear
-    eor     r1, r2, r2                  // Clear
-    eor     r2, r2, r2                  // Clear
-    eor     r3, r2, r2                  // Clear
-    eor     r4, r2, r2                  // Clear
-    eor     r5, r2, r2                  // Clear
-    eor     r6, r2, r2                  // Clear
-    eor     r7, r2, r2                  // Clear
-    eor     r8, r2, r2                  // Clear
-    ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
+    //strb    r5, [r6, #1] // NOTE this guy
+    eor     r4, r6, r6                  // Clear
+    orr     r4, r8, r5, lsl #8
+    orr     r6, r6, r6                  // Clear (pipeline)
+    strh    r4, [r6] // FIXME this store is a leak
+
+    eor     r0, r6, r6                  // Clear
+    eor     r1, r6, r6                  // Clear
+    eor     r2, r6, r6                  // Clear
+    eor     r3, r6, r6                  // Clear
+    eor     r4, r6, r6                  // Clear
+    eor     r5, r6, r6                  // Clear
+    eor     r6, r6, r6                  // Clear
+    eor     r7, r6, r6                  // Clear
+    eor     r8, r6, r6                  // Clear
+    eor     r9, r2, r2                  // Clear
+    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, pc}
 
 .global bf8_inv_masked 
 bf8_inv_masked:
@@ -201,17 +223,16 @@ bf8_inv_masked:
     mov     r5, r0
     mov     r4, r1
     mov     r1, sp
-    // NOTE change to str.w seems to help
-    str.w  r3, [sp]
-    str.w  r3, [sp, #4]
-    str.w  r3, [sp, #8]
-    str.w  r3, [sp, #12]
-    str.w  r3, [sp, #16]
-    str.w  r3, [sp, #20]
-    str.w  r3, [sp, #24]
-    str.w  r3, [sp, #28]
-    str.w  r3, [sp, #32]
-    str.w  r3, [sp, #36]   @ 0x24
+    strh.w  r3, [sp]
+    strh.w  r3, [sp, #4]
+    strh.w  r3, [sp, #8]
+    strh.w  r3, [sp, #12]
+    strh.w  r3, [sp, #16]
+    strh.w  r3, [sp, #20]
+    strh.w  r3, [sp, #24]
+    strh.w  r3, [sp, #28]
+    strh.w  r3, [sp, #32]
+    strh.w  r3, [sp, #36]   @ 0x24
     bl      bf8_square_masked
     add     r2, sp, #4
     mov     r0, r5
