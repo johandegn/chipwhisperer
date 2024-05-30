@@ -59,159 +59,68 @@ mul_label:
     nop
 
 .global bf8_square_masked
-bf8_square_masked: // does this approach keep the value secret?
-    orr     ip, ip, ip                  // Clear (pipeline)
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    push    {r3, r4, r5, r6, r7, r8, lr}
-    eor     r2, r0, r0                  // Clear ? we dont use though
-    eor     r3, r0, r0                  // Clear
-    eor     r4, r0, r0                  // Clear
-    eor     r5, r0, r0                  // Clear
-    eor     r6, r0, r0                  // Clear
-    eor     r7, r0, r0                  // Clear
-    eor     r8, r0, r0                  // Clear
-    ldrb    r7, [r0, #0]
-    mov     r4, r0
-    mov     r6, r1
-    mov     r0, r7
-    mov     r1, r7
-    bl      bf8_mul                     // s0 * s0
-    eor     r1, r4, r4                  // Clear
-    ldrb    r1, [r4, #1] // NOTE
-    // Possible pipeline leak FIXME: mby remove (no leak)..?
-    mov     r8, r0
-    eor     r0, r4, r4                  // Clear
-    mov     r0, r7
-    bl      bf8_mul                     // s0 * s1
-    eors    r8, r0
-    //strb    r5, [r6, #0] // NOTE this guy
-    eor     r5, r4, r4                  // Clear
-    ldrb    r5, [r4, #1]
-    eor     r1, r4, r4                  // Clear
-    ldrb    r1, [r4, #0] // NOTE
-    eor     r0, r4, r4                  // Clear
-    // leakage if a share is 0
-    mov     r0, r5
-    bl      bf8_mul                     // s1 * s0
-    eor     r1, r4, r4                  // Clear
-    mov     r1, r5
-    mov     r4, r0
-    mov     r0, r5
-    bl      bf8_mul                     // s1 * s1
-    eors    r4, r0
-    //strb    r4, [r6, #1] // NOTE this guy
-    eor     r5, r6, r6                  // Clear
-    orr     r5, r8, r4, lsl #8
-
-    //lsl     r5, r4, #8
-    //orr     r6, r6, r6                  // Clear (pipeline)
-    //eor     r4, r6, r6                  // Clear
-    //eor     r4, r8, r5
-    //orr     r6, r6, r6                  // Clear (pipeline)
-    //strh    r4, [r6, #0]
-
-    orr     r6, r6, r6                  // Clear (pipeline)
-    strh    r5, [r6] // FIXME this store is a leak
-
-    eor     r0, r6, r6                  // Clear
-    eor     r1, r6, r6                  // Clear
-    eor     r2, r6, r6                  // Clear
-    eor     r3, r6, r6                  // Clear
-    eor     r4, r6, r6                  // Clear
-    eor     r5, r6, r6                  // Clear
-    eor     r6, r6, r6                  // Clear
-    eor     r7, r6, r6                  // Clear
-    eor     r8, r6, r6                  // Clear
-    pop     {r3, r4, r5, r6, r7, r8, pc}
-
-.global bf8_mul_masked
-// r0 a_share_ptr
-// r1 b_share_ptr
-// r2 out_share_ptr
-bf8_mul_masked:
-    orr     ip, ip, ip                  // Clear (pipeline)
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    push    {lr}                        // Clear
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    pop     {lr}                        // ^^^^^
-    stmdb   sp!, {r4, r5, r6, r7, r8, r9, lr}
-    eor     r4, r2, r2                  // Clear
-    eor     r5, r2, r2                  // Clear
-    eor     r6, r2, r2                  // Clear
-    eor     r7, r2, r2                  // Clear
-    eor     r8, r2, r2                  // Clear
-    eor     r9, r2, r2                  // Clear
-    ldrb.w  r8, [r0]
+bf8_square_masked:
+    push    {r3, r4, r5, lr}
     mov     r4, r1
-    mov     r7, r0
-    ldrb    r1, [r1, #0]
-    mov     r0, r8
-    mov     r6, r2
-    bl      bf8_mul
-    eor     r1, r6, r6                  // Clear
-    ldrb    r1, [r4, #1]
-    mov     r9, r0
-    mov     r0, r8
-    bl      bf8_mul
-    eors    r9, r0
-    //strb    r5, [r6, #0] // NOTE this guy
-    ldrb    r7, [r7, #1]
-    eor     r1, r6, r6                  // Clear
-    ldrb    r1, [r4, #0]
-    // leakage if a share is 0
-    mov     r0, r7
-    bl      bf8_mul
-    eor     r1, r6, r6                  // Clear
-    ldrb    r1, [r4, #1]
+    ldrb    r1, [r0, #0]
     mov     r5, r0
+    mov     r0, r1
+    bl      bf8_mul
+    strb    r0, [r4, #0]
+    eor     r1, r4, r4                  // Clear
+    ldrb    r1, [r5, #1]
+    eor     r0, r4, r4                  // Clear
+    mov     r0, r1
+    bl      bf8_mul
+    strb    r0, [r4, #1]
+    pop     {r3, r4, r5, pc}
+
+.global bf8_mul_masked 
+bf8_mul_masked:
+    push    {r4, r5, r6, r7, r8, lr}
+    mov     r8, r0
+    sub     sp, #8
+    mov     r5, r1
+    add.w   r0, sp, #7
+    movs    r1, #1
+    mov     r6, r2
+    bl      rand_mask
+    ldrb.w  r7, [r8]
+    ldrb    r1, [r5, #0]
     mov     r0, r7
     bl      bf8_mul
-    eors    r5, r0
-    //strb    r5, [r6, #1] // NOTE this guy
-    eor     r4, r6, r6                  // Clear
-    orr     r4, r8, r5, lsl #8
-    orr     r6, r6, r6                  // Clear (pipeline)
-    strh    r4, [r6] // FIXME this store is a leak
+    eor     r1, r5, r5                  // Clear
+    ldrb    r1, [r5, #1]
+    mov     r4, r0
+    mov     r0, r7
+    ldrb.w  r7, [sp, #7]
+    eors    r4, r7
+    bl      bf8_mul
+    eors    r4, r0
+    strb    r4, [r6, #0]
+    eor     r4, r5, r5                  // Clear
+    ldrb    r1, [r5, #0]
+    ldrb.w  r8, [r8, #1]
+    mov     r0, r8
+    bl      bf8_mul
+    eor     r1, r5, r5                  // Clear
+    ldrb    r1, [r5, #1]
+    eor     r7, r0
+    mov     r0, r8
+    bl      bf8_mul
+    eors    r7, r0
+    strb    r7, [r6, #1]
+    add     sp, #8
+    pop     {r4, r5, r6, r7, r8, pc}
 
-    eor     r0, r6, r6                  // Clear
-    eor     r1, r6, r6                  // Clear
-    eor     r2, r6, r6                  // Clear
-    eor     r3, r6, r6                  // Clear
-    eor     r4, r6, r6                  // Clear
-    eor     r5, r6, r6                  // Clear
-    eor     r6, r6, r6                  // Clear
-    eor     r7, r6, r6                  // Clear
-    eor     r8, r6, r6                  // Clear
-    eor     r9, r2, r2                  // Clear
-    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, pc}
-
-.global bf8_inv_masked 
+.global bf8_inv_masked
 bf8_inv_masked:
-    push    {r3}
-    push    {r3}
-    push    {r3}
-    pop     {r3}
-    pop     {r3}
-    pop     {r3}
+    push    {r1}
+    push    {r1}
+    push    {r1}
+    pop     {r1}
+    pop     {r1}
+    pop     {r1}
     push    {r4, r5, lr}
     eor     r2, r1, r1                  // Clear
     eor     r3, r1, r1                  // Clear
@@ -287,8 +196,7 @@ compute_sbox_masked:
     bl      bf8_inv_masked
     add     r6, sp, #8
 sbox_label:
-    // clear all __paritysi2 store points
-    // this guy leaks, i know it. line below
+    eors    r5, r6, r6      //clear
     ldrb    r5, [r6, #0]
     // clear r0
     and.w   r0, r5, #241    @ 0xf1

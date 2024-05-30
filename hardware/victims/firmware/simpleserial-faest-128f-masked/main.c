@@ -68,6 +68,7 @@ static uint8_t msg_gen(uint8_t *m, uint8_t len) {
 void bf8_square_masked(bf8_t in_share[2], bf8_t out_share[2]);
 void bf8_mul_masked(bf8_t a[2], bf8_t b[2], bf8_t out_share[2]);
 void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]);
+void compute_sbox_masked(bf8_t in[2], bf8_t out[2]);
 //void pipeline_test(bf8_t in_0, bf8_t in_1, bf8_t rand_1, bf8_t rand_2);
 
 static uint8_t sign(uint8_t *m, uint8_t len) {
@@ -78,14 +79,23 @@ static uint8_t sign(uint8_t *m, uint8_t len) {
     pipeline_test(in_share[0], in_share[1], msg[1], msg[2]);
     */
 
-    /* inv_masked
+    /* sbox_masked
     */
+    bf8_t in_share[2] = {msg[0], 0};
+    in_share[1] = in_share[0] ^ sk[0];
+    bf8_t out_share[2] = {0, 0};
+    trigger_high();
+    compute_sbox_masked(in_share, out_share);
+    trigger_low();
+
+    /* inv_masked
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
     trigger_high();
     bf8_inv_masked(in_share, out_share);
     trigger_low();
+    */
 
     /* mul_masked
     bf8_t a_share[2] = {msg[0], 0};
