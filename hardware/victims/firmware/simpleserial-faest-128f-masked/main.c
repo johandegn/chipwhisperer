@@ -54,9 +54,9 @@ static uint8_t get_msg(uint8_t *m, uint8_t len) {
 }
 
 static uint8_t key_gen(uint8_t *m, uint8_t len) {
-    //int res = faest_128f_keygen(pk, sk);
-    //return res;
-    rand_bytes(&sk[0], CRYPTO_SECRETKEYBYTES);
+    int res = faest_128f_keygen(pk, sk);
+    return res;
+    //rand_bytes(&sk[0], CRYPTO_SECRETKEYBYTES);
     return 0;
 }
 
@@ -69,6 +69,7 @@ void bf8_square_masked(bf8_t in_share[2], bf8_t out_share[2]);
 void bf8_mul_masked(bf8_t a[2], bf8_t b[2], bf8_t out_share[2]);
 void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]);
 void compute_sbox_masked(bf8_t in[2], bf8_t out[2]);
+void sub_words_masked(bf8_t* words);
 //void pipeline_test(bf8_t in_0, bf8_t in_1, bf8_t rand_1, bf8_t rand_2);
 
 static uint8_t sign(uint8_t *m, uint8_t len) {
@@ -80,13 +81,13 @@ static uint8_t sign(uint8_t *m, uint8_t len) {
     */
 
     /* sbox_masked
-    */
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
     trigger_high();
     compute_sbox_masked(in_share, out_share);
     trigger_low();
+    */
 
     /* inv_masked
     bf8_t in_share[2] = {msg[0], 0};
@@ -117,12 +118,20 @@ static uint8_t sign(uint8_t *m, uint8_t len) {
     trigger_low();
     */
     
+    /* sub_words_masked
+    bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[0], msg[1] ^ sk[1], msg[2] ^ sk[2], msg[3] ^ sk[3]};
+    trigger_high();
+    sub_words_masked(words);
+    trigger_low();
+    */
+
     /*
+    */
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
-    return res
-    */
-    return 0;
+    return res;
+    
+    //return 0;
 }
 
 

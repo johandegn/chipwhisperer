@@ -126,7 +126,6 @@ bf8_inv_masked:
     eor     r3, r1, r1                  // Clear
     eor     r4, r1, r1                  // Clear
     eor     r5, r1, r1                  // Clear
-    eor     r5, r1, r1                  // Clear
     sub     sp, #44 @ 0x2c
     movs    r3, #0
     mov     r5, r0
@@ -186,7 +185,7 @@ bf8_inv_masked:
 // r0 = in_share_ptr
 // r1 = out_share_ptr
 compute_sbox_masked:
-    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    push    {r4, r5, r6, r7, r8, r9, sl, fp, lr}
     sub     sp, #20
     mov     r7, r1
     movs    r3, #0
@@ -195,10 +194,22 @@ compute_sbox_masked:
     strh.w  r3, [sp, #8]
     bl      bf8_inv_masked
     add     r6, sp, #8
+
 sbox_label:
-    eors    r5, r6, r6      //clear
+    eors    r5, r6, r6                  // Clear
     ldrb    r5, [r6, #0]
-    // clear r0
+    
+    eors    r0, r6, r6                  // Clear
+    eors    r2, r6, r6                  // Clear
+    eors    r3, r6, r6                  // Clear
+    eors    r4, r6, r6                  // Clear
+    eors    r7, r6, r6                  // Clear
+    eors    r8, r6, r6                  // Clear
+    eors    r9, r6, r6                  // Clear
+    eors    fp, r6, r6                  // Clear
+    eors    sl, r6, r6                  // Clear
+    str     r0, [sp]                    // Clear
+    
     and.w   r0, r5, #241    @ 0xf1
     bl      __paritysi2
     mov     r7, r0
@@ -235,15 +246,31 @@ sbox_label:
     add.w   r3, sp, #10
     cmp     r3, r6
     bne.n   sbox_label
+
+    eors    r3, r6, r6                  // Clear
     ldrb.w  r3, [sp, #9]
+    eors    r1, r6, r6                  // Clear
     ldr     r1, [sp, #4]
+    eors    r2, r6, r6                  // Clear
     ldrb.w  r2, [sp, #8]
     strb    r2, [r1, #0]
-    // pipeline leak (r2 and r3)
+    orr     r6, r6, r6                  // Clear (pipeline)
     eor.w   r3, r3, #99     @ 0x63
     strb    r3, [r1, #1]
+    
+    eors    r0, r6, r6                  // Clear
+    eors    r1, r6, r6                  // Clear
+    eors    r2, r6, r6                  // Clear
+    eors    r3, r6, r6                  // Clear
+    eors    r4, r6, r6                  // Clear
+    eors    r5, r6, r6                  // Clear
+    eors    r7, r6, r6                  // Clear
+    eors    r8, r6, r6                  // Clear
+    eors    r9, r6, r6                  // Clear
+    eors    fp, r6, r6                  // Clear
+    eors    sl, r6, r6                  // Clear
     add     sp, #20
-    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+    pop     {r4, r5, r6, r7, r8, r9, sl, fp, pc}
     nop
 
 .global sub_bytes_masked
@@ -304,3 +331,33 @@ loop_1:
     eors    r7, lr, lr
     eors    r8, lr, lr
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
+
+.global sub_words_masked
+sub_words_masked:
+    push    {r4, r5, r6, r7, lr}
+    adds    r5, r0, #3
+    sub     sp, #12
+    subs    r4, r0, #1
+    mov     r7, r5
+    movs    r6, #0
+sub_words_label:
+    ldrb.w  r2, [r4, #1]!
+    strb.w  r2, [sp]
+    push    {lr}                        // Clear LSU pipeline
+    pop     {lr}                        // ^^^^^
+    ldrb.w  r3, [r5, #1]!
+    add     r1, sp, #4
+    mov     r0, sp
+    strb.w  r3, [sp, #1]
+    strh.w  r6, [sp, #4]
+    bl      compute_sbox_masked
+    ldrb.w  r2, [sp, #4]
+    strb    r2, [r4, #0]
+    push    {lr}                        // Clear LSU pipeline
+    pop     {lr}                        // ^^^^^
+    ldrb.w  r3, [sp, #5]
+    cmp     r4, r7
+    strb    r3, [r5, #0]
+    bne.n   sub_words_label
+    add     sp, #12
+    pop     {r4, r5, r6, r7, pc}
