@@ -255,6 +255,7 @@ sbox_label:
     ldrb.w  r2, [sp, #8]
     strb    r2, [r1, #0]
     orr     r6, r6, r6                  // Clear (pipeline)
+    strb    r1, [sp, #4]
     eor.w   r3, r3, #99     @ 0x63
     strb    r3, [r1, #1]
     

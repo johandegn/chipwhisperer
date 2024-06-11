@@ -129,6 +129,7 @@ static uint8_t sign(uint8_t *m, uint8_t len) {
     */
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
+    trigger_low();
     return res;
     
     //return 0;
