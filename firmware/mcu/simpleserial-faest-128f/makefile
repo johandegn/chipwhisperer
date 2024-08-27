@@ -65,8 +65,8 @@ ASRC += keccakf1600.S
 
 
 # -----------------------------------------------------------------------------
-#EXTRA_OPTS = NO_EXTRA_OPTS
-#CFLAGS += -D$(EXTRA_OPTS)
+# EXTRA_OPTS = NO_EXTRA_OPTS
+# CFLAGS += -D$(EXTRA_OPTS)
 
 OPT = 3
 
