@@ -70,7 +70,6 @@ SRC += keccakf1600.c
 
 
 ASRC += aes-encrypt.S
-ASRC += extended-witness.S
 ASRC += aes-keyschedule.S
 ASRC += aes-publicinputs_.S
 ASRC += keccakf1600.S
