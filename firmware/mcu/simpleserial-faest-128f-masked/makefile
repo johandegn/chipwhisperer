@@ -74,6 +74,7 @@ ASRC += aes-keyschedule.S
 ASRC += aes-publicinputs_.S
 ASRC += keccakf1600.S
 ASRC += KeccakP-1600-mpc_.S
+ASRC += extracted-functions.S
 
 
 # -----------------------------------------------------------------------------
