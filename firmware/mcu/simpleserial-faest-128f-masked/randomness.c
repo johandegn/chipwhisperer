@@ -169,7 +169,7 @@ int rand_mask(uint8_t *obuf, size_t len)
     return 0;
 }
 
-#elif defined(MUPQ_NAMESPACE)
+#elif defined(MUPQ_NAMESPACE) || defined(STM32L4)
 
 int rand_mask(uint8_t *obuf, size_t len) {
 	randombytes(obuf, len);
