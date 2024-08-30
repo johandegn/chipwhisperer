@@ -29,3 +29,37 @@ pipeline_test4: // NO LEAK STM32F415
     eor     r3, r1, r3
     pop     {r4, r5, pc}
 
+.global store_store_b_test
+store_store_b_test: // NO LEAK STM32F415
+    push    {lr}
+    strb    r0, [r2, #0]
+    strb    r1, [r3, #0]
+    pop     {pc}
+
+.global load_load_test
+load_load_test: // NO LEAK STM32F415
+    push    {r5, lr}
+    ldr     r0, [r2, #0]
+    ldr     r1, [r3, #0]
+    pop     {r5, pc}
+
+.global load_load_b_test
+load_load_b_test: // NO LEAK STM32F415
+    push    {lr}
+    ldrb    r0, [r2, #0]
+    ldrb    r1, [r3, #0]
+    pop     {pc}
+
+.global load_store_b_test
+load_store_b_test: // NO LEAK STM32F415
+    push    {lr}
+    ldrb    r0, [r2, #0]
+    strb    r1, [r3, #0]
+    pop     {pc}
+
+.global store_load_b_test
+store_load_b_test: // LEAK STM32F415
+    push    {lr}
+    strb    r0, [r2, #0]
+    ldrb    r1, [r3, #0]
+    pop     {pc}

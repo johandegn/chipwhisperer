@@ -48,13 +48,78 @@ void pipeline_test2(uint8_t, uint8_t);
 void pipeline_test3(uint8_t, uint8_t);
 void pipeline_test4(uint8_t, uint8_t);
 
-static uint8_t test(uint8_t *m, uint8_t len) {
+static void pipeline_test_fun(void) {
     uint8_t mask;
     randombytes(&mask, 1);
     uint8_t shares[2] = {mask, secret[0] ^ mask};
     trigger_high();
     pipeline_test1(shares[0], shares[1]);
     trigger_low();
+}
+
+void store_store_b_test(uint8_t, uint8_t, uint8_t *, uint8_t *);
+
+static void store_store_b_test_fun(void) {
+    uint8_t mask;
+    randombytes(&mask, 1);
+    uint8_t shares[2] = {mask, secret[0] ^ mask};
+    uint8_t result[2] = {0, 0};
+    trigger_high();
+    store_store_b_test(shares[0], shares[1], result, result + 1);
+    trigger_low();
+}
+
+void load_load_test(uint32_t, uint32_t, uint32_t *, uint32_t *);
+static void load_load_test_fun(void) {
+    uint32_t mask;
+    randombytes(((uint8_t *)(&mask)) + 0, 1);
+    randombytes(((uint8_t *)(&mask)) + 1, 1);
+    randombytes(((uint8_t *)(&mask)) + 2, 1);
+    randombytes(((uint8_t *)(&mask)) + 3, 1);
+    uint32_t shares[2] = {mask, secret[0] ^ mask};
+    trigger_high();
+    load_load_test(0, 0, shares, shares + 1);
+    trigger_low();
+}
+
+void load_load_b_test(uint8_t, uint8_t, uint8_t *, uint8_t *);
+static void load_load_b_test_fun(void) {
+    uint8_t mask;
+    randombytes(&mask, 1);
+    uint8_t shares[2] = {mask, secret[0] ^ mask};
+    trigger_high();
+    load_load_b_test(0, 0, shares, shares + 1);
+    trigger_low();
+}
+
+void load_store_b_test(uint8_t, uint8_t, uint8_t *, uint8_t *);
+static void load_store_b_test_fun(void) {
+    uint8_t mask;
+    randombytes(&mask, 1);
+    uint8_t shares[2] = {mask, secret[0] ^ mask};
+    trigger_high();
+    load_store_b_test(0, shares[1], shares, shares + 1);
+    trigger_low();
+}
+
+void store_load_b_test(uint8_t, uint8_t, uint8_t *, uint8_t *);
+static void store_load_b_test_fun(void) {
+    uint8_t mask;
+    randombytes(&mask, 1);
+    uint8_t shares[2] = {mask, secret[0] ^ mask};
+    trigger_high();
+    store_load_b_test(shares[0], 0, shares, shares + 1);
+    trigger_low();
+}
+
+static uint8_t test(uint8_t *m, uint8_t len) {
+    //pipeline_test_fun();
+    //store_store_b_test_fun();
+    load_load_test_fun();
+    //load_load_b_test_fun();
+    //load_store_b_test_fun();
+    //store_load_b_test_fun();
+
     return 0;
 }
 
