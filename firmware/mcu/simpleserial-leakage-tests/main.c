@@ -43,7 +43,7 @@ static uint8_t gen_secret(uint8_t *m, uint8_t len) {
 }
 
 
-void pipeline_test(uint8_t a, uint8_t b);
+void pipeline_test(uint8_t, uint8_t);
 
 static uint8_t test(uint8_t *m, uint8_t len) {
     uint8_t mask;
@@ -54,7 +54,6 @@ static uint8_t test(uint8_t *m, uint8_t len) {
     trigger_low();
     return 0;
 }
-
 
 
 int main(void) {
