@@ -43,14 +43,17 @@ static uint8_t gen_secret(uint8_t *m, uint8_t len) {
 }
 
 
-void pipeline_test(uint8_t, uint8_t);
+void pipeline_test1(uint8_t, uint8_t);
+void pipeline_test2(uint8_t, uint8_t);
+void pipeline_test3(uint8_t, uint8_t);
+void pipeline_test4(uint8_t, uint8_t);
 
 static uint8_t test(uint8_t *m, uint8_t len) {
     uint8_t mask;
     randombytes(&mask, 1);
     uint8_t shares[2] = {mask, secret[0] ^ mask};
     trigger_high();
-    pipeline_test(shares[0], shares[1]);
+    pipeline_test1(shares[0], shares[1]);
     trigger_low();
     return 0;
 }
