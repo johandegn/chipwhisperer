@@ -82,7 +82,6 @@ static uint8_t sign(uint8_t *m, uint8_t len) {
     */
 
     /* mul_masked
-    */
     bf8_t a_share[2] = {msg[0], 0};
     a_share[1] = a_share[0] ^ sk[0];
     bf8_t b_share[2] = {msg[1], 0};
@@ -90,6 +89,16 @@ static uint8_t sign(uint8_t *m, uint8_t len) {
     bf8_t out_share[2] = {0, 0};
     trigger_high();
     bf8_mul_masked(a_share, b_share, out_share);
+    trigger_low();
+    */
+
+    /* inv_masked
+    */
+    bf8_t in_share[2] = {msg[0], 0};
+    in_share[1] = in_share[0] ^ sk[0];
+    bf8_t out_share[2] = {0, 0};
+    trigger_high();
+    bf8_inv_masked(in_share, out_share);
     trigger_low();
 
     /*
