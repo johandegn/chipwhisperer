@@ -588,16 +588,17 @@ void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]) {
   bf8_t r = 0;
   rand_mask(&r, 1);
   r |= 1;
-  bf8_t x0r = bf8_mul(r, in_share[0]);
+  bf8_t x0r = bf8_mul(in_share[0], r);
   bf8_t x1r = bf8_mul(r, in_share[1]);
   bf8_t xr = bf8_add(x0r, x1r);
-  bf8_t xr_inv = bf8_inv(xr);
+  asm volatile("mov r4, #0\n\t");
+  bf8_t xr_inv = bf8_inv_asm(xr);
   bf8_t r1 = 0;
   rand_mask(&r1, 1);
   bf8_t y0 = bf8_add(xr_inv, r1);
   bf8_t y1 = r1;
   out_share[0] = bf8_mul(y0, r);
-  out_share[1] = bf8_mul(y1, r);
+  out_share[1] = bf8_mul(r, y1);
 }
 
 /*
