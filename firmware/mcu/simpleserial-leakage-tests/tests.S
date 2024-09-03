@@ -9,7 +9,7 @@ pipeline_test1: // LEAK STM32F415
     pop     {pc}
 
 .global pipeline_test2
-pipeline_test2: // LEAK STM32F415
+pipeline_test2: // LEAK (SMALL)? STM32F415
     push    {lr}
     eor     r0, r0, r2
     eor     r1, r1, r3
@@ -51,7 +51,7 @@ load_load_b_test: // NO LEAK STM32F415
     pop     {pc}
 
 .global load_store_b_test
-load_store_b_test: // NO LEAK STM32F415
+load_store_b_test: // LEAK STM32F415
     push    {lr}
     ldrb    r0, [r2, #0]
     strb    r1, [r3, #0]

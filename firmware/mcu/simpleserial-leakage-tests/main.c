@@ -52,13 +52,18 @@ static void pipeline_test_fun(void) {
     uint8_t mask;
     randombytes(&mask, 1);
     uint8_t shares[2] = {mask, secret[0] ^ mask};
+    asm volatile(
+        "mov r0, #0\n\t"
+        "mov r1, #0\n\t"
+        "mov r2, #0\n\t"
+        "mov r3, #0\n\t"
+    );
     trigger_high();
     pipeline_test1(shares[0], shares[1], 0, 0);
     trigger_low();
 }
 
 void store_store_b_test(uint8_t, uint8_t, uint8_t *, uint8_t *);
-
 static void store_store_b_test_fun(void) {
     uint8_t mask;
     randombytes(&mask, 1);
@@ -87,6 +92,12 @@ static void load_load_b_test_fun(void) {
     uint8_t mask;
     randombytes(&mask, 1);
     uint8_t shares[2] = {mask, secret[0] ^ mask};
+    asm volatile(
+        "mov r0, #0\n\t"
+        "mov r1, #0\n\t"
+        "mov r2, #0\n\t"
+        "mov r3, #0\n\t"
+    );
     trigger_high();
     load_load_b_test(0, 0, shares, shares + 1);
     trigger_low();
@@ -97,8 +108,15 @@ static void load_store_b_test_fun(void) {
     uint8_t mask;
     randombytes(&mask, 1);
     uint8_t shares[2] = {mask, secret[0] ^ mask};
+    uint8_t result = 0;
+    asm volatile(
+        "mov r0, #0\n\t"
+        "mov r1, #0\n\t"
+        "mov r2, #0\n\t"
+        "mov r3, #0\n\t"
+    );
     trigger_high();
-    load_store_b_test(0, shares[1], shares, shares + 1);
+    load_store_b_test(0, shares[1], shares, &result);
     trigger_low();
 }
 
@@ -107,17 +125,24 @@ static void store_load_b_test_fun(void) {
     uint8_t mask;
     randombytes(&mask, 1);
     uint8_t shares[2] = {mask, secret[0] ^ mask};
+    uint8_t result = 0;
+    asm volatile(
+        "mov r0, #0\n\t"
+        "mov r1, #0\n\t"
+        "mov r2, #0\n\t"
+        "mov r3, #0\n\t"
+    );
     trigger_high();
-    store_load_b_test(shares[0], 0, shares, shares + 1);
+    store_load_b_test(shares[0], 0, &result, shares + 1);
     trigger_low();
 }
 
 static uint8_t test(uint8_t *m, uint8_t len) {
-    pipeline_test_fun();
+    //pipeline_test_fun();
     //store_store_b_test_fun();
     //load_load_test_fun();
     //load_load_b_test_fun();
-    //load_store_b_test_fun();
+    load_store_b_test_fun();
     //store_load_b_test_fun();
 
     return 0;
