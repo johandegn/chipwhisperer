@@ -557,16 +557,14 @@ uint8_t* aes_extend_witness(const uint8_t* key, const uint8_t* in, const faest_p
 //  Masked implementation
 // #######################
 
-void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]);
-/*
 void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]) {
   bf8_t r = 0;
   rand_mask(&r, 1);
-  r |= 1;
+  // map 0 -> 0xff, and otherwize no change
+  r ^= (!__builtin_popcount(r)) * 0xff;
   bf8_t x0r = bf8_mul(in_share[0], r);
   bf8_t x1r = bf8_mul(r, in_share[1]);
   bf8_t xr = bf8_add(x0r, x1r);
-  asm volatile("mov r4, #0\n\t");
   bf8_t xr_inv = bf8_inv(xr);
   bf8_t r1 = 0;
   rand_mask(&r1, 1);
@@ -575,7 +573,6 @@ void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]) {
   out_share[0] = bf8_mul(y0, r);
   out_share[1] = bf8_mul(r, y1);
 }
-*/
 
 void compute_sbox_masked(bf8_t in[2], bf8_t out[2]) {
   bf8_t out_share[2] = {0};
