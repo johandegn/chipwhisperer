@@ -78,7 +78,6 @@ uint8_t clean_call_wrapper(uint8_t* m, uint8_t len) {
 
 uint8_t sign() {
     /* inv_masked
-    */  
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
@@ -92,8 +91,10 @@ uint8_t sign() {
     trigger_high();
     bf8_inv_masked(in_share, out_share);
     trigger_low();
+    */
 
     /* sbox_masked
+    */
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
@@ -106,7 +107,6 @@ uint8_t sign() {
     trigger_high();
     compute_sbox_masked(in_share, out_share);
     trigger_low();
-    */
 
     /*
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;

@@ -574,6 +574,8 @@ void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]) {
   out_share[1] = bf8_mul(r, y1);
 }
 
+void compute_sbox_masked(bf8_t in[2], bf8_t out[2]);
+/*
 void compute_sbox_masked(bf8_t in[2], bf8_t out[2]) {
   bf8_t out_share[2] = {0};
   bf8_inv_masked(in, out_share);
@@ -600,6 +602,7 @@ void compute_sbox_masked(bf8_t in[2], bf8_t out[2]) {
   out[0] = out_share[0];
   out[1] = out_share[1] ^ (1 | (1 << 1) | (1 << 5) | (1 << 6));
 }
+*/
 
 static void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
