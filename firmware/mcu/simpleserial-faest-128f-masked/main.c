@@ -78,7 +78,7 @@ uint8_t clean_call_wrapper(uint8_t* m, uint8_t len) {
 
 uint8_t sign() {
     /* inv_masked
-    */
+    */  
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
