@@ -54,7 +54,7 @@ compute_sbox_masked:
     bl      bf8_inv_masked
     add     r6, sp, #8
 sbox_masked_loop:
-    ldrb    r5, [sp, #4]
+    ldrb    r5, [sp, #4]            // CLEAR
     ldrb    r5, [r6, #0]
     and.w   r0, r5, #241    @ 0xf1
     bl      __paritysi2
@@ -96,7 +96,7 @@ sbox_masked_loop:
     ldr     r1, [sp, #4]
     ldrb.w  r2, [sp, #8]
     strb    r2, [r1, #0]
-    strb    r1, [sp, #4]
+    strb    r1, [sp, #4]            // CLEAR
     eor.w   r3, r3, #99     @ 0x63
     strb    r3, [r1, #1]
     add     sp, #20
