@@ -108,6 +108,20 @@ uint8_t sign() {
     compute_sbox_masked(in_share, out_share);
     trigger_low();
 
+    /* sub_words_masked
+    bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[0], msg[1] ^ sk[1], msg[2] ^ sk[2], msg[3] ^ sk[3]};
+    asm volatile(
+        "mov r0, #0\n\t"
+        "mov r1, #0\n\t"
+        "mov r2, #0\n\t"
+        "mov r3, #0\n\t"
+    );
+    trigger_high();
+    sub_words_masked(words);
+    trigger_low();
+    */
+
+
     /*
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     //trigger_high();
