@@ -53,7 +53,7 @@ compute_sbox_masked:
     str     r7, [sp, #4]
     bl      bf8_inv_masked
     add     r6, sp, #8
-sbox_masked_loop:
+    // first iteration
     ldrb    r5, [sp, #4]            // CLEAR
     ldrb    r5, [r6, #0]
     and.w   r0, r5, #241    @ 0xf1
@@ -91,9 +91,7 @@ sbox_masked_loop:
     eor.w   r3, r3, r9, lsl #6
     eor.w   r3, r3, r0, lsl #7
     strb.w  r3, [r6], #1
-    add.w   r3, sp, #10
-    cmp     r3, r6
-    //bne.n   sbox_masked_loop
+    // second iteration
     ldrb    r5, [sp, #4]            // CLEAR
     ldrb    r5, [r6, #0]
     and.w   r0, r5, #241    @ 0xf1
@@ -131,8 +129,6 @@ sbox_masked_loop:
     eor.w   r3, r3, r9, lsl #6
     eor.w   r3, r3, r0, lsl #7
     strb.w  r3, [r6], #1
-    add.w   r3, sp, #10
-    cmp     r3, r6
     // manual loop unrolling
     ldrb.w  r3, [sp, #9]
     ldr     r1, [sp, #4]
