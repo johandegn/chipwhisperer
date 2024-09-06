@@ -98,12 +98,6 @@ uint8_t sign() {
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
-    asm volatile(
-        "mov r0, #0\n\t"
-        "mov r1, #0\n\t"
-        "mov r2, #0\n\t"
-        "mov r3, #0\n\t"
-    );
     trigger_high();
     compute_sbox_masked(in_share, out_share);
     trigger_low();
