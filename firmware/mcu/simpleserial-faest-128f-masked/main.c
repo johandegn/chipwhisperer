@@ -82,38 +82,26 @@ uint8_t sign() {
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
     // arm assembly to set r2 and r3 to 0
-    asm volatile(
-        "mov r0, #0\n\t"
-        "mov r1, #0\n\t"
-        "mov r2, #0\n\t"
-        "mov r3, #0\n\t"
-    );
     trigger_high();
     bf8_inv_masked(in_share, out_share);
     trigger_low();
     */
 
     /* sbox_masked
-    */
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[0];
     bf8_t out_share[2] = {0, 0};
     trigger_high();
     compute_sbox_masked(in_share, out_share);
     trigger_low();
+    */
 
     /* sub_words_masked
+    */
     bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[0], msg[1] ^ sk[1], msg[2] ^ sk[2], msg[3] ^ sk[3]};
-    asm volatile(
-        "mov r0, #0\n\t"
-        "mov r1, #0\n\t"
-        "mov r2, #0\n\t"
-        "mov r3, #0\n\t"
-    );
     trigger_high();
     sub_words_masked(words);
     trigger_low();
-    */
 
 
     /*

@@ -619,6 +619,8 @@ static void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_word
   }
 }
 
+void sub_words_masked(bf8_t* words);
+/*
 void sub_words_masked(bf8_t* words) {
   for (int i = 0; i < 4; i++) {
     bf8_t in_share[2]  = {words[i], words[i + AES_NR]};
@@ -628,6 +630,7 @@ void sub_words_masked(bf8_t* words) {
     words[i + AES_NR] = out_share[1];
   }
 }
+*/
 
 void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key_share,
                           unsigned int key_words, unsigned int block_words,

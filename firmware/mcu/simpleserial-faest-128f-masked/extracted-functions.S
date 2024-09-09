@@ -141,8 +141,8 @@ compute_sbox_masked:
     add     sp, #20
     ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
-.global sub_words_masked_a
-sub_words_masked_a:
+.global sub_words_masked
+sub_words_masked:
     push    {r4, r5, r6, r7, lr}
     adds    r5, r0, #3
     sub     sp, #12
