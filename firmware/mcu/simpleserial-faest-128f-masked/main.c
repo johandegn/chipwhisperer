@@ -79,7 +79,7 @@ uint8_t clean_call_wrapper(uint8_t* m, uint8_t len) {
 uint8_t sign() {
     /* inv_masked
     bf8_t in_share[2] = {msg[0], 0};
-    in_share[1] = in_share[0] ^ sk[0];
+    in_share[1] = in_share[0] ^ sk[16+12 + 0];
     bf8_t out_share[2] = {0, 0};
     // arm assembly to set r2 and r3 to 0
     trigger_high();
@@ -89,7 +89,7 @@ uint8_t sign() {
 
     /* sbox_masked
     bf8_t in_share[2] = {msg[0], 0};
-    in_share[1] = in_share[0] ^ sk[0];
+    in_share[1] = in_share[0] ^ sk[16+12 + 0];
     bf8_t out_share[2] = {0, 0};
     trigger_high();
     compute_sbox_masked(in_share, out_share);
@@ -98,7 +98,7 @@ uint8_t sign() {
 
     /* sub_words_masked
     */
-    bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[0], msg[1] ^ sk[1], msg[2] ^ sk[2], msg[3] ^ sk[3]};
+    bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[16+12 + 0], msg[1] ^ sk[16+12 + 1], msg[2] ^ sk[16+12 + 2], msg[3] ^ sk[16+12 + 3]};
     trigger_high();
     sub_words_masked(words);
     trigger_low();
