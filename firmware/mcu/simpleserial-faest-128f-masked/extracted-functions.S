@@ -80,8 +80,8 @@ compute_sbox_masked:
     and.w   r0, r5, #248    @ 0xf8
     bl      __paritysi2
     ldr     r2, [sp, #0]
-    mov     r1, #0          // str-str CLEAR
-    strb    r1, [r6]        //
+    mov     r3, #0          // str-str CLEAR
+    strb    r3, [r6]        //
     lsls    r3, r4, #2
     eor.w   r3, r3, r2, lsl #1
     eors    r3, r7
@@ -96,30 +96,36 @@ compute_sbox_masked:
     ldrb    r5, [r6, #0]
     and.w   r0, r5, #241    @ 0xf1
     bl      __paritysi2
+    mov     r7, #0                  // CLEAR
     mov     r7, r0
     and.w   r0, r5, #227    @ 0xe3
     bl      __paritysi2
     str     r0, [sp, #0]
     and.w   r0, r5, #199    @ 0xc7
     bl      __paritysi2
+    mov     r4, #0                  // CLEAR
     mov     r4, r0
     and.w   r0, r5, #143    @ 0x8f
     bl      __paritysi2
+    mov     r8, #0                  // CLEAR
     mov     r8, r0
     and.w   r0, r5, #31
     bl      __paritysi2
+    mov     fp, #0                  // CLEAR
     mov     fp, r0
     and.w   r0, r5, #62     @ 0x3e
     bl      __paritysi2
+    mov     sl, #0                  // CLEAR
     mov     sl, r0
     and.w   r0, r5, #124    @ 0x7c
     bl      __paritysi2
+    mov     r9, #0                  // CLEAR
     mov     r9, r0
     and.w   r0, r5, #248    @ 0xf8
     bl      __paritysi2
     ldr     r2, [sp, #0]
-    mov     r1, #0          // str-str CLEAR
-    strb    r1, [r6]        //
+    mov     r3, #0          // str-str CLEAR
+    strb    r3, [r6]        //
     lsls    r3, r4, #2
     eor.w   r3, r3, r2, lsl #1
     eors    r3, r7
@@ -160,6 +166,7 @@ sub_words_masked_loop:
     add     r1, sp, #4
     mov     r0, sp
     bl      compute_sbox_masked
+    ldrb.w  r2, [lr, #0]            // CLEAR
     ldrb.w  r2, [sp, #4]
     strb    r2, [r4, #0]
     ldrb.w  r2, [lr, #0]            // CLEAR
