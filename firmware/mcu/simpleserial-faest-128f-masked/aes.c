@@ -221,7 +221,7 @@ int rijndael256_init_round_keys(aes_round_keys_t* round_key, const uint8_t* key)
   return expand_key(round_key, key, KEY_WORDS_256, RIJNDAEL_BLOCK_WORDS_256, ROUNDS_256);
 }
 
-static void load_state(aes_block_t state, const uint8_t* src, unsigned int block_words) {
+void load_state(aes_block_t state, const uint8_t* src, unsigned int block_words) {
   for (unsigned int i = 0; i != block_words * 4; ++i) {
     state[i / 4][i % 4] = bf8_load(&src[i]);
   }
@@ -607,7 +607,9 @@ void compute_sbox_masked(bf8_t in[2], bf8_t out[2]) {
 }
 */
 
-static void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_words) {
+void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_words);
+/*
+void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
     for (unsigned int r = 0; r < AES_NR; r++) {
       bf8_t in_share[2]  = {state_share[0][c][r], state_share[1][c][r]};
@@ -618,6 +620,7 @@ static void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_word
     }
   }
 }
+*/
 
 void sub_words_masked(bf8_t* words);
 /*

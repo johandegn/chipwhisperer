@@ -177,3 +177,44 @@ sub_words_masked_loop:
     bne.n   sub_words_masked_loop
     add     sp, #12
     pop     {r4, r5, r6, r7, pc}
+
+.global sub_bytes_masked
+sub_bytes_masked:
+    cbz     r1, sub_bytes_masked_early_return
+    stmdb   sp!, {r4, r5, r6, r7, r8, lr}
+    movs    r7, #0
+    sub     sp, #8
+    mov     r8, r1
+    adds    r5, r0, #4
+    mov     r6, r7
+    mov     r2, #0                  // CLEAR
+    strh    r6, [sp]                // CLEAR
+sub_bytes_masked_loop1:
+    subs    r4, r5, #4
+sub_bytes_masked_loop2:
+    ldrb.w  r2, [r4], #1
+    strb.w  r2, [sp]
+    strh.w  r6, [sp, #4]            // CLEAR
+    ldrb    r3, [r4, #31]
+    strb.w  r3, [sp, #1]
+    add     r1, sp, #4
+    mov     r0, sp
+    strh.w  r6, [sp, #4]
+    bl      compute_sbox_masked
+    strh    r6, [sp]                // CLEAR
+    ldrh    r6, [sp]                // CLEAR
+    ldrb.w  r2, [sp, #4]
+    strb.w  r2, [r4, #-1]
+    strh    r6, [sp]                // CLEAR
+    ldrb.w  r3, [sp, #5]
+    strb    r3, [r4, #31]
+    cmp     r4, r5
+    bne.n   sub_bytes_masked_loop2
+    adds    r7, #1
+    cmp     r8, r7
+    add.w   r5, r5, #4
+    bne.n   sub_bytes_masked_loop1
+    add     sp, #8
+    ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
+sub_bytes_masked_early_return:
+    bx      lr
