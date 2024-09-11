@@ -165,6 +165,7 @@ sub_words_masked_loop:
     add     sp, #12
     pop     {r4, r5, r6, r7, pc}
 
+
 .global sub_bytes_masked
 sub_bytes_masked:
     cbnz    r1, sub_bytes_masked_run
@@ -179,25 +180,24 @@ sub_bytes_masked_run:
 sub_bytes_masked_outer:
     subs    r4, r5, #4
 sub_bytes_masked_inner:
-    ldrb.w  r2, [r4], #1
-    ldr     r1, [lr]                    // CLEAR
-    strb.w  r2, [sp]
-    strh    r6, [sp, #4]                // CLEAR
+    strb    r6, [sp, #4]                // CLEAR
+    ldrb    r2, [r4], #1
+    strb    r2, [sp]
+    ldrb    r1, [sp, #4]                // CLEAR
     ldrb    r3, [r4, #31]
-    strb.w  r3, [sp, #1]
+    strb    r3, [sp, #1]
+    strh    r6, [sp, #4]
+    ldrb    r1, [sp, #5]                // CLEAR
     add     r1, sp, #4
     mov     r0, sp
-    strh.w  r6, [sp, #4]
-    ldr     r2, [lr]                    // CLEAR
+    strh    r6, [sp, #4]
     bl      compute_sbox_masked
-    ldr     r0, [lr, #4]                // CLEAR
-    strh    r6, [sp, #4]                // CLEAR
-    ldrb.w  r2, [sp, #4]
-    ldr     r1, [lr]                    // CLEAR
-    strb.w  r2, [r4, #-1]
-    strh    r6, [sp, #4]                // CLEAR
+    strb    r6, [sp]                    // CLEAR
+    ldrb    r2, [sp, #4]
+    strb    r2, [r4, #-1]
+    strb    r1, [sp, #1]                // CLEAR
     cmp     r4, r5
-    ldrb.w  r3, [sp, #5]
+    ldrb    r3, [sp, #5]
     strb    r3, [r4, #31]
     bne.n   sub_bytes_masked_inner
     adds    r7, #1

@@ -94,13 +94,13 @@ uint8_t sign() {
     */
 
     /* sbox_masked
-    */
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[16+12 + 0];
     bf8_t out_share[2] = {0, 0};
     trigger_high();
     compute_sbox_masked(in_share, out_share);
     trigger_low();
+    */
 
     /* sub_words_masked
     bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[16+12 + 0], msg[1] ^ sk[16+12 + 1], msg[2] ^ sk[16+12 + 2], msg[3] ^ sk[16+12 + 3]};
@@ -110,6 +110,7 @@ uint8_t sign() {
     */
    
     /* sub_bytes_masked
+    */
 #define AES_BLOCK_WORDS 4
     aes_block_t state_share[2] = {0};
     //load_state(state_share[0], msg, AES_BLOCK_WORDS);
@@ -123,7 +124,6 @@ uint8_t sign() {
     trigger_high();
     sub_bytes_masked(state_share, AES_BLOCK_WORDS);
     trigger_low();
-    */
 
 
     /*
