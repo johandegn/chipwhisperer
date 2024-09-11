@@ -559,12 +559,20 @@ uint8_t* aes_extend_witness(const uint8_t* key, const uint8_t* in, const faest_p
 
 void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]) {
   bf8_t r = 0;
+  /*
+  do {
+    rand_mask(&r, 1);
+  } while(r == 0);
+  */
+  
   //rand_mask(&r, 1);
   // map 0 -> 1, and otherwize no change
   //r += (!__builtin_popcount(r));
+  
   bf64_t big_r = bf64_rand();
   // map 2^64-1 -> 1
   r = (bf8_t) (big_r % 255 + 1);
+
   bf8_t x0r = bf8_mul(in_share[0], r);
   bf8_t x1r = bf8_mul(r, in_share[1]);
   bf8_t xr = bf8_add(x0r, x1r);

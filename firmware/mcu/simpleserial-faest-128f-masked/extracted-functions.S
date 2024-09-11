@@ -16,28 +16,15 @@ clean_call:
     mov     r9, #0
     mov     r10, #0
 
-    sub     sp, #80
-    str     r0, [sp, #0]
-    str     r0, [sp, #4]
-    str     r0, [sp, #8]
-    str     r0, [sp, #12]
-    str     r0, [sp, #16]
-    str     r0, [sp, #20]
-    str     r0, [sp, #24]
-    str     r0, [sp, #28]
-    str     r0, [sp, #32]
-    str     r0, [sp, #36]
-    str     r0, [sp, #40]
-    str     r0, [sp, #44]
-    str     r0, [sp, #48]
-    str     r0, [sp, #52]
-    str     r0, [sp, #56]
-    str     r0, [sp, #60]
-    str     r0, [sp, #64]
-    str     r0, [sp, #68]
-    str     r0, [sp, #72]
-    str     r0, [sp, #76]
-    add     sp, #80
+    mov     r1, #5000
+    mov     r3, sp
+clean_call_loop:
+    str     r0, [r3, #-4]!
+    subs    r1, r1, #1
+    bne     clean_call_loop
+
+    mov     r1, #0
+    mov     r3, #0
 
     bl      sign
 
@@ -180,41 +167,42 @@ sub_words_masked_loop:
 
 .global sub_bytes_masked
 sub_bytes_masked:
-    cbz     r1, sub_bytes_masked_early_return
+    cbnz    r1, sub_bytes_masked_run
+    bx      lr
+sub_bytes_masked_run:
     stmdb   sp!, {r4, r5, r6, r7, r8, lr}
     movs    r7, #0
     sub     sp, #8
     mov     r8, r1
     adds    r5, r0, #4
     mov     r6, r7
-    mov     r2, #0                  // CLEAR
-    strh    r6, [sp]                // CLEAR
-sub_bytes_masked_loop1:
+sub_bytes_masked_outer:
     subs    r4, r5, #4
-sub_bytes_masked_loop2:
+sub_bytes_masked_inner:
     ldrb.w  r2, [r4], #1
+    ldr     r1, [lr]                    // CLEAR
     strb.w  r2, [sp]
-    strh.w  r6, [sp, #4]            // CLEAR
+    strh    r6, [sp, #4]                // CLEAR
     ldrb    r3, [r4, #31]
     strb.w  r3, [sp, #1]
     add     r1, sp, #4
     mov     r0, sp
     strh.w  r6, [sp, #4]
+    ldr     r2, [lr]                    // CLEAR
     bl      compute_sbox_masked
-    strh    r6, [sp]                // CLEAR
-    ldrh    r6, [sp]                // CLEAR
+    ldr     r0, [lr, #4]                // CLEAR
+    strh    r6, [sp, #4]                // CLEAR
     ldrb.w  r2, [sp, #4]
+    ldr     r1, [lr]                    // CLEAR
     strb.w  r2, [r4, #-1]
-    strh    r6, [sp]                // CLEAR
+    strh    r6, [sp, #4]                // CLEAR
+    cmp     r4, r5
     ldrb.w  r3, [sp, #5]
     strb    r3, [r4, #31]
-    cmp     r4, r5
-    bne.n   sub_bytes_masked_loop2
+    bne.n   sub_bytes_masked_inner
     adds    r7, #1
     cmp     r8, r7
     add.w   r5, r5, #4
-    bne.n   sub_bytes_masked_loop1
+    bne.n   sub_bytes_masked_outer
     add     sp, #8
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
-sub_bytes_masked_early_return:
-    bx      lr
