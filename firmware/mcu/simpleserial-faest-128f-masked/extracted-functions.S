@@ -43,13 +43,13 @@ compute_sbox_masked:
     ldrb    r0, [sp]                // CLEAR
 
     ldrb    r0, [sp, #4]
-    bl      affine
+    bl      affine_incomplete
     strb    r0, [r4, #0]
     
     ldrb    r0, [sp]                // CLEAR
 
     ldrb    r0, [sp, #5]
-    bl      affine_incomplete
+    bl      affine
     strb    r0, [r4, #1]
 
     ldrb    r0, [sp]                // CLEAR
@@ -116,6 +116,8 @@ sub_bytes_masked_inner:
     mov     r0, sp
     strh    r6, [sp, #4]
     bl      compute_sbox_masked
+    mov     r2, r6                      // CLEAR
+    mov     r3, r6                      // CLEAR
     strb    r6, [sp]                    // CLEAR
     ldrb    r2, [sp, #4]
     strb    r2, [r4, #-1]
