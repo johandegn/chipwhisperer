@@ -68,24 +68,25 @@ sub_words_masked:
     movs    r6, #0
 sub_words_masked_loop:
     // Reordering to fix ldr-str leak
-    ldrb.w  r2, [r4, #1]!
-    strb.w  r2, [sp]
-    strh.w  r6, [sp, #4]
+    ldrb    r2, [r4, #1]!
+    strb    r2, [sp]
+    strh    r6, [sp, #4]
     ldrh    r6, [sp, #4]            // CLEAR
-    ldrb.w  r3, [r5, #1]!
-    strb.w  r3, [sp, #1]
+    ldrb    r3, [r5, #1]!
+    strb    r3, [sp, #1]
     add     r1, sp, #4
     mov     r0, sp
     bl      compute_sbox_masked
-    ldrb.w  r2, [lr, #0]            // CLEAR
-    ldrb.w  r2, [sp, #4]
+    mov     r2, r6
+    mov     r3, r6
+    strb    r4, [r4, #0]            // CLEAR
+    ldrb    r2, [sp, #4]
     strb    r2, [r4, #0]
-    ldrb.w  r2, [lr, #0]            // CLEAR
     cmp     r4, r7
     strb    r4, [r5, #0]            // CLEAR
-    ldrb.w  r3, [sp, #5]
+    ldrb    r3, [sp, #5]
     strb    r3, [r5, #0]
-    bne.n   sub_words_masked_loop
+    bne     sub_words_masked_loop
     add     sp, #12
     pop     {r4, r5, r6, r7, pc}
 
