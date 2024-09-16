@@ -54,15 +54,17 @@ static uint8_t get_msg(uint8_t* m, uint8_t len) {
 }
 
 static uint8_t key_gen(uint8_t* m, uint8_t len) {
-    //int res = faest_128f_keygen(pk, sk);
-    //return res;
+    int res = faest_128f_keygen(pk, sk);
+    return res;
     //rand_bytes(&sk[0], CRYPTO_SECRETKEYBYTES);
+    /*
     for (unsigned int i = 0; i < CRYPTO_SECRETKEYBYTES; i++) {
         do {
             rand_bytes(sk + i, 1);
         } while (sk[i] == 0);
     }
     return 0;
+    */
 }
 
 static uint8_t msg_gen(uint8_t* m, uint8_t len) {
@@ -110,7 +112,6 @@ uint8_t sign() {
     */
    
     /* sub_bytes_masked
-    */
 #define AES_BLOCK_WORDS 4
     aes_block_t state_share[2] = {0};
     //load_state(state_share[0], msg, AES_BLOCK_WORDS);
@@ -124,15 +125,16 @@ uint8_t sign() {
     trigger_high();
     sub_bytes_masked(state_share, AES_BLOCK_WORDS);
     trigger_low();
+    */
 
 
     /*
+    */
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     //trigger_high();
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
     //trigger_low();
     return res;
-    */
 
     return 0;
 }
