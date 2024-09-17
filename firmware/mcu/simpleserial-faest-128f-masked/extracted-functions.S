@@ -34,29 +34,36 @@ clean_call_loop:
 
 .global compute_sbox_masked
 compute_sbox_masked:
-    push    {r4, lr}
+    push    {r4, r5, lr}
     sub     sp, #8
+    mov     r5, #0
     mov     r4, r1
+    strh    r5, [sp, #4]
     add     r1, sp, #4
     bl      bf8_inv_masked
 
-    ldrb    r0, [sp]                // CLEAR
+    strh    r5, [sp]                // CLEAR
+    mov     r3, #0                  // CLEAR
+    mov     r0, r5                  // CLEAR
+    ldrb    r1, [sp]                // CLEAR
 
     ldrb    r0, [sp, #4]
     bl      affine_incomplete
     strb    r0, [r4, #0]
     
-    ldrb    r0, [sp]                // CLEAR
+    strh    r5, [sp]                // CLEAR
+    mov     r3, #0                  // CLEAR
+    mov     r0, r5                  // CLEAR
+    ldrb    r1, [sp]                // CLEAR
 
     ldrb    r0, [sp, #5]
     bl      affine
     strb    r0, [r4, #1]
 
-    ldrb    r0, [sp]                // CLEAR
+    ldrb    r1, [sp]                // CLEAR
 
     add     sp, #8
-    pop     {r4, pc}
-
+    pop     {r4, r5, pc}
 
 .global sub_words_masked
 sub_words_masked:
@@ -67,25 +74,33 @@ sub_words_masked:
     mov     r7, r5
     movs    r6, #0
 sub_words_masked_loop:
-    // Reordering to fix ldr-str leak
+    strh    r6, [sp, #4]                // CLEAR
+    ldrb    r1, [sp, #5]                // CLEAR
     ldrb    r2, [r4, #1]!
     strb    r2, [sp]
-    strh    r6, [sp, #4]
-    ldrh    r6, [sp, #4]            // CLEAR
+    strh    r6, [sp, #5]                // CLEAR
+    ldrb    r1, [sp, #4]                // CLEAR
     ldrb    r3, [r5, #1]!
-    strb    r3, [sp, #1]
     add     r1, sp, #4
     mov     r0, sp
+    strb    r3, [sp, #1]
+    strh    r6, [sp, #4]                // CLEAR
+    ldrb    r1, [sp, #5]                // CLEAR
+    strh    r6, [sp, #4]
     bl      compute_sbox_masked
-    mov     r2, r6
-    mov     r3, r6
-    strb    r4, [r4, #0]            // CLEAR
+    mov     r2, r6                      // CLEAR
+    mov     r3, r6                      // CLEAR
+    strh    r6, [sp]                    // CLEAR
+    ldrb    r1, [sp, #1]                // CLEAR
     ldrb    r2, [sp, #4]
     strb    r2, [r4, #0]
-    cmp     r4, r7
-    strb    r4, [r5, #0]            // CLEAR
+    strh    r6, [sp, #1]                // CLEAR
+    ldrb    r1, [sp, #0]                // CLEAR
     ldrb    r3, [sp, #5]
+    cmp     r4, r7
     strb    r3, [r5, #0]
+    strh    r6, [sp]                    // CLEAR
+    ldrb    r1, [sp, #1]                // CLEAR
     bne     sub_words_masked_loop
     add     sp, #12
     pop     {r4, r5, r6, r7, pc}
