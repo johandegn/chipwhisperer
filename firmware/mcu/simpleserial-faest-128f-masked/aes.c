@@ -35,10 +35,14 @@
 #define RIJNDAEL_BLOCK_WORDS_192 6
 #define RIJNDAEL_BLOCK_WORDS_256 8
 
-static const bf8_t round_constants[30] = {
+static const bf8_t round_constants_table[30] = {
     0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a,
     0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91,
 };
+
+bf8_t round_constants(bf8_t b) {
+  return round_constants_table[b];
+}
 
 static int contains_zero(const bf8_t* block) {
   return !block[0] | !block[1] | !block[2] | !block[3];
@@ -205,7 +209,7 @@ int expand_key(aes_round_keys_t* round_keys, const uint8_t* key, unsigned int ke
       rot_word(tmp);
       ret |= contains_zero(tmp);
       sub_words(tmp);
-      tmp[0] ^= round_constants[(k / key_words) - 1];
+      tmp[0] ^= round_constants((k / key_words) - 1);
     }
 
     if (key_words > 6 && (k % key_words) == 4) {
@@ -689,7 +693,7 @@ void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key
       rot_word(tmp_share[0]);
       rot_word(tmp_share[1]);
       sub_words_masked(&tmp_share[0][0]);
-      tmp_share[0][0] ^= round_constants[(k / key_words) - 1];
+      tmp_share[0][0] ^= round_constants((k / key_words) - 1);
     }
 
     unsigned int m = k - key_words;

@@ -156,6 +156,131 @@ sub_bytes_masked_inner:
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
 
 
+
+.global expand_128key_masked
+expand_128key_masked:
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+    sub     sp, #8
+    mov     r5, r3
+    ldr     r4, [sp, #40]   @ 0x28
+    mov     r6, r0
+    mov     r7, r2
+    movs    r3, #0
+    cbz     r2, expand_128key_masked_l1
+expand_128key_masked_l2:
+    udiv    r2, r3, r5
+    mls     ip, r5, r2, r3
+    add.w   ip, ip, r2, lsl #3
+    ldrb    r2, [r1, #0]
+    strb.w  r2, [r6, ip, lsl #2]
+    add.w   ip, r6, ip, lsl #2
+    ldrb    r2, [r1, #1]
+    strb.w  r2, [ip, #1]
+    ldrb    r2, [r1, #2]
+    strb.w  r2, [ip, #2]
+    ldrb    r2, [r1, #3]
+    strb.w  r2, [ip, #3]
+    ldrb.w  r2, [r1, #32]
+    strb.w  r2, [ip, #480]  @ 0x1e0
+    ldrb.w  r2, [r1, #33]   @ 0x21
+    strb.w  r2, [ip, #481]  @ 0x1e1
+    ldrb.w  r2, [r1, #34]   @ 0x22
+    strb.w  r2, [ip, #482]  @ 0x1e2
+    adds    r3, #1
+    ldrb.w  r2, [r1, #35]   @ 0x23
+    strb.w  r2, [ip, #483]  @ 0x1e3
+    cmp     r7, r3
+    add.w   r1, r1, #4
+    bne.n   expand_128key_masked_l2
+expand_128key_masked_l1:
+    mla     r9, r4, r5, r5
+    cmp     r7, r9
+    bcs.n   expand_128key_masked_l3
+    mov     r4, r7
+    add.w   r8, r6, #480    @ 0x1e0
+    b.n     expand_128key_masked_l4
+expand_128key_masked_l5:
+    subs    r3, r4, r7
+    movs    r1, #0
+    udiv    r0, r3, r5
+    bfi     r1, r2, #0, #8
+    mls     r3, r5, r0, r3
+    ldrb.w  r2, [sp, #1]
+    ldrb.w  lr, [sp, #3]
+    add.w   r3, r3, r0, lsl #3
+    ldrb.w  r0, [sp, #2]
+    ldr.w   ip, [r6, r3, lsl #2]
+    bfi     r1, r2, #8, #8
+    bfi     r1, r0, #16, #8
+    udiv    r2, r4, r5
+    mls     r0, r5, r2, r4
+    add.w   r0, r0, r2, lsl #3
+    bfi     r1, lr, #24, #8
+    eor.w   r1, r1, ip
+    str.w   r1, [r6, r0, lsl #2]
+    ldr     r2, [sp, #4]
+    ldr.w   r3, [r8, r3, lsl #2]
+    adds    r4, #1
+    eors    r3, r2
+    cmp     r4, r9
+    str.w   r3, [r8, r0, lsl #2]
+    beq.n   expand_128key_masked_l3
+expand_128key_masked_l4:
+    udiv    sl, r4, r7
+    subs    r3, r4, #1
+    udiv    r2, r3, r5
+    mls     r3, r5, r2, r3
+    add.w   r3, r3, r2, lsl #3
+    add.w   r2, r6, r3, lsl #2
+    ldr.w   r3, [r6, r3, lsl #2]
+    str     r3, [sp]
+    mov     ip, #7                      // CLEAR
+    str     ip, [sp, #4]                // CLEAR
+    ldr     ip, [sp, #4]                // CLEAR
+    ldr.w   r1, [r2, #480]  @ 0x1e0
+    str     r1, [sp, #4]
+    mls     r0, r7, sl, r4
+    //strd    r3, r1, [sp]
+    uxtb    r2, r3
+    cmp     r0, #0
+    bne.n   expand_128key_masked_l5
+    mov     ip, r0
+    mov     lr, r0
+    ubfx    r0, r3, #8, #8
+    bfi     ip, r0, #0, #8
+    ubfx    r0, r1, #8, #8
+    bfi     lr, r0, #0, #8
+    ubfx    r0, r3, #16, #8
+    bfi     ip, r0, #8, #8
+    lsrs    r3, r3, #24
+    bfi     ip, r3, #16, #8
+    ubfx    r3, r1, #16, #8
+    bfi     lr, r3, #8, #8
+    lsrs    r3, r1, #24
+    bfi     lr, r3, #16, #8
+    bfi     ip, r2, #24, #8
+    bfi     lr, r1, #24, #8
+    mov     r0, sp
+    str     ip, [sp]
+    mov     ip, #7                      // CLEAR
+    str     ip, [sp, #4]                // CLEAR
+    ldr     ip, [sp, #4]                // CLEAR
+    str     lr, [sp, #4]
+    //strd    ip, lr, [sp]
+    bl      sub_words_masked
+    add.w   r0, sl, #4294967295     @ 0xffffffff
+    uxtb    r0, r0
+    bl      round_constants
+    ldrb.w  r3, [sp]
+    eor.w   r2, r0, r3
+    uxtb    r2, r2
+    b.n     expand_128key_masked_l5
+expand_128key_masked_l3:
+    add     sp, #8
+    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+
+
+/*
 .global expand_128key_masked
 expand_128key_masked:
     stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
@@ -235,8 +360,8 @@ expand_128key_masked_l4:
     ldr.w   r3, [r6, r3, lsl #2]
     str     r3, [sp]
     mov     ip, #7                      // CLEAR
-    str     ip, [sp]                    // CLEAR
-    ldr     ip, [sp]                    // CLEAR
+    str     ip, [sp, #4]                // CLEAR
+    ldr     ip, [sp, #4]                // CLEAR
     ldr.w   r0, [r2, #480]  @ 0x1e0
     str     r0, [sp, #4]
     mls     r1, r7, fp, r4
@@ -263,8 +388,8 @@ expand_128key_masked_l4:
     mov     r0, sp
     str     ip, [sp]
     mov     ip, #7                      // CLEAR
-    str     ip, [sp]                    // CLEAR
-    ldr     ip, [sp]                    // CLEAR
+    str     ip, [sp, #4]                // CLEAR
+    ldr     ip, [sp, #4]                // CLEAR
     str     r1, [sp, #4]
     bl      sub_words_masked
     ldrb.w  r3, [sp]
@@ -274,7 +399,7 @@ expand_128key_masked_l4:
 expand_128key_masked_l3:
     add     sp, #12
     ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
-
+*/
 
 .global aes_encrypt_round_masked
 aes_encrypt_round_masked:
@@ -286,7 +411,6 @@ aes_encrypt_round_masked:
     mov     r4, r2
     add.w   r8, r5, #32
     bl      sub_bytes_masked
-    bl      trigger_low
     mov     r1, r7
     mov     r0, r5
     bl      shift_row
