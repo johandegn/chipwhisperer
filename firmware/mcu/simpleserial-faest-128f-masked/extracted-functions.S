@@ -121,13 +121,15 @@ sub_bytes_masked_outer:
     subs    r4, r5, #4
 sub_bytes_masked_inner:
     strb    r6, [sp, #4]                // CLEAR
+    ldrb    r1, [sp, #5]                // CLEAR
     ldrb    r2, [r4], #1
     strb    r2, [sp]
+    strb    r6, [sp, #5]                // CLEAR
     ldrb    r1, [sp, #4]                // CLEAR
     ldrb    r3, [r4, #31]
     strb    r3, [sp, #1]
     strh    r6, [sp, #4]
-    ldrb    r1, [sp, #5]                // CLEAR
+    ldrb    r1, [sp, #4]                // CLEAR
     add     r1, sp, #4
     mov     r0, sp
     strh    r6, [sp, #4]
@@ -135,12 +137,16 @@ sub_bytes_masked_inner:
     mov     r2, r6                      // CLEAR
     mov     r3, r6                      // CLEAR
     strb    r6, [sp]                    // CLEAR
+    ldrb    r1, [sp, #1]                // CLEAR
     ldrb    r2, [sp, #4]
     strb    r2, [r4, #-1]
-    strb    r1, [sp, #1]                // CLEAR
+    strb    r6, [sp, #1]                // CLEAR
+    ldrb    r1, [sp]                    // CLEAR
     cmp     r4, r5
     ldrb    r3, [sp, #5]
     strb    r3, [r4, #31]
+    strb    r6, [sp]                    // CLEAR
+    ldrb    r1, [sp, #1]                // CLEAR
     bne.n   sub_bytes_masked_inner
     adds    r7, #1
     cmp     r8, r7
@@ -280,6 +286,7 @@ aes_encrypt_round_masked:
     mov     r4, r2
     add.w   r8, r5, #32
     bl      sub_bytes_masked
+    bl      trigger_low
     mov     r1, r7
     mov     r0, r5
     bl      shift_row
