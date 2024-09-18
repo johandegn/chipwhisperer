@@ -126,7 +126,7 @@ static int sub_bytes(aes_block_t state, unsigned int block_words) {
   return ret;
 }
 
-static void shift_row(aes_block_t state, unsigned int block_words) {
+void shift_row(aes_block_t state, unsigned int block_words) {
   aes_block_t new_state;
   switch (block_words) {
   case 4:
@@ -153,7 +153,7 @@ static void shift_row(aes_block_t state, unsigned int block_words) {
   }
 }
 
-static void mix_column(aes_block_t state, unsigned int block_words) {
+void mix_column(aes_block_t state, unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
     bf8_t tmp = bf8_mul(state[c][0], 0x02) ^ bf8_mul(state[c][1], 0x03) ^ state[c][2] ^ state[c][3];
     bf8_t tmp_1 =
@@ -742,6 +742,30 @@ uint8_t* init_round_0_key(uint8_t* w_share[2], uint8_t* w, uint8_t* w_out,
   return w;
 }
 
+void aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t* w, uint8_t* w_out, unsigned int round);
+/*
+void aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t* w, uint8_t* w_out, unsigned int round) {
+  // Step 15
+  sub_bytes_masked(state_share, block_words);
+
+  // Step 16
+  shift_row(state_share[0], block_words);
+  shift_row(state_share[1], block_words);
+
+  // Step 17
+  store_state(w_share[0] + (w - w_out), state_share[0], block_words);
+  store_state(w_share[1] + (w - w_out), state_share[1], block_words);
+  w += sizeof(aes_word_t) * block_words;
+
+  // Step 18
+  mix_column(state_share[0], block_words);
+  mix_column(state_share[1], block_words);
+  // Step 19
+  add_round_key(round, state_share[0], &round_keys_share[0], block_words);
+  add_round_key(round, state_share[1], &round_keys_share[1], block_words);
+}
+*/
+
 uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_share,
                                    const faest_paramset_t* params, uint8_t* w) {
   const unsigned int lambda     = params->faest_param.lambda;
@@ -891,29 +915,7 @@ uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_s
     add_round_key(0, state_share[1], &round_keys_share[1], block_words);
 
     for (unsigned int round = 1; round < num_rounds; ++round) {
-      // Step 15
-
-      sub_bytes_masked(state_share, block_words);
-
-      // Step 16
-      shift_row(state_share[0], block_words);
-      shift_row(state_share[1], block_words);
-
-      // Step 17
-      store_state(w_share[0] + (w - w_out), state_share[0], block_words);
-      store_state(w_share[1] + (w - w_out), state_share[1], block_words);
-      w += sizeof(aes_word_t) * block_words;
-      /*
-      store_state(w, state, block_words);
-      w += sizeof(aes_word_t) * block_words;
-      */
-      // Step 18
-
-      mix_column(state_share[0], block_words);
-      mix_column(state_share[1], block_words);
-      // Step 19
-      add_round_key(round, state_share[0], &round_keys_share[0], block_words);
-      add_round_key(round, state_share[1], &round_keys_share[1], block_words);
+      aes_encrypt_round_masked(state_share, block_words, round_keys_share, w_share, w, w_out, round);
     }
     // last round is not commited to, so not computed
   }
