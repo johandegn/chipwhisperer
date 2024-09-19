@@ -81,11 +81,11 @@ sub_words_masked_loop:
     strh    r6, [sp, #5]                // CLEAR
     ldrb    r1, [sp, #4]                // CLEAR
     ldrb    r3, [r5, #1]!
-    add     r1, sp, #4
-    mov     r0, sp
     strb    r3, [sp, #1]
     strh    r6, [sp, #4]                // CLEAR
     ldrb    r1, [sp, #5]                // CLEAR
+    mov     r0, sp
+    add     r1, sp, #4
     strh    r6, [sp, #4]
     bl      compute_sbox_masked
     mov     r2, r6                      // CLEAR
