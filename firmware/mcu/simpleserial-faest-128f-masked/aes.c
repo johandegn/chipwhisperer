@@ -748,6 +748,18 @@ uint8_t* init_round_0_key(uint8_t* w_share[2], uint8_t* w, uint8_t* w_out,
 
 void aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t** w, uint8_t* w_out, unsigned int round);
 
+uint8_t* aes_extend_witness_masked_output(uint8_t* w_out, uint8_t * const w_share[2], unsigned int l);
+/*
+uint8_t* aes_extend_witness_masked_output(uint8_t* w_out, uint8_t * const w_share[2], unsigned int l) {
+  // Setting up output to return
+  for (unsigned int i = 0; i < (l + 7) / 8; i++) {
+    w_out[i]               = w_share[0][i];
+    w_out[i + (l + 7) / 8] = w_share[1][i];
+  }
+  return w_out;
+}
+*/
+
 uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_share,
                                    const faest_paramset_t* params, uint8_t* w) {
   const unsigned int lambda     = params->faest_param.lambda;
@@ -758,7 +770,7 @@ uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_s
   // uint8_t* w           = malloc((l + 7) / 8);
   uint8_t* const w_out = w;
 
-  uint8_t* w_share[2] = {0};
+  uint8_t* w_share[2] = {NULL, NULL};
   w_share[0]          = alloca((l + 7) / 8);
   w_share[1]          = alloca((l + 7) / 8);
   memset(w_share[0], 0, (l + 7) / 8);
@@ -902,11 +914,5 @@ uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_s
     // last round is not commited to, so not computed
   }
 
-  // Setting up output to return
-  for (unsigned int i = 0; i < (l + 7) / 8; i++) {
-    w_out[i]               = w_share[0][i];
-    w_out[i + (l + 7) / 8] = w_share[1][i];
-  }
-
-  return w_out;
+  return aes_extend_witness_masked_output(w_out, w_share, l);
 }
