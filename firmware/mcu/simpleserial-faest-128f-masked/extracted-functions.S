@@ -403,29 +403,28 @@ expand_128key_masked_l3:
 
 .global aes_encrypt_round_masked
 aes_encrypt_round_masked:
-    stmdb   sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
-    mov     r7, r1
+    stmdb   sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    mov     r8, r1
+    ldrd    r9, sl, [sp, #40]       @ 0x28
     mov     r5, r0
-    mov     r9, r3
-    ldr     r6, [sp, #36]   @ 0x24
     mov     r4, r2
-    add.w   r8, r5, #32
+    mov     fp, r3
+    add.w   r7, r5, #32
     bl      sub_bytes_masked
-    mov     r1, r7
+    mov     r1, r8
     mov     r0, r5
     bl      shift_row
-    mov     r1, r7
-    mov     r0, r8
+    mov     r1, r8
+    mov     r0, r7
     bl      shift_row
-    ldr     r3, [sp, #32]
-    sub.w   lr, r3, r6
-    lsls    r6, r7, #2
-    ldr.w   r3, [r9]
+    ldr.w   r2, [r9]
+    ldr.w   r3, [fp]
+    movs.w  r6, r8, lsl #2
+    sub.w   r1, r2, sl
     beq.n   aes_encrypt_round_masked_l1
-    add.w   ip, r3, lr
-    add     r3, r6
-    add.w   r0, r3, lr
-    mov     r3, ip
+    add     r3, r1
+    mov     ip, r3
+    adds    r0, r6, r3
 aes_encrypt_round_masked_l2:
     sub.w   r2, r3, ip
     bic.w   r1, r2, #3
@@ -435,11 +434,12 @@ aes_encrypt_round_masked_l2:
     strb.w  r2, [r3], #1
     cmp     r3, r0
     bne.n   aes_encrypt_round_masked_l2
-    ldr.w   r3, [r9, #4]
-    add.w   ip, r3, lr
-    add     r3, r6
-    add.w   r0, r3, lr
-    mov     r2, ip
+    ldr.w   r3, [r9]
+    ldr.w   r2, [fp, #4]
+    sub.w   r3, r3, sl
+    add     r2, r3
+    mov     ip, r2
+    adds    r0, r6, r2
 
     ldr     r3, [sp, #36]   // CLEAR
     mov     r1, #0          // CLEAR
@@ -448,21 +448,25 @@ aes_encrypt_round_masked_l2:
 aes_encrypt_round_masked_l3:
     sub.w   r3, r2, ip
     bic.w   r1, r3, #3
-    add     r1, r8
+    add     r1, r7
     and.w   r3, r3, #3
     ldrb    r3, [r1, r3]
     strb.w  r3, [r2], #1
     cmp     r2, r0
     bne.n   aes_encrypt_round_masked_l3
+    ldr.w   r2, [r9]
+    add     r2, r6
 aes_encrypt_round_masked_l1:
-    mov     r1, r7
+    mov     r1, r8
     mov     r0, r5
+    str.w   r2, [r9]
     bl      mix_column
-    mov     r1, r7
-    mov     r0, r8
+    mov     r1, r8
+    mov     r0, r7
     bl      mix_column
-    cbz     r7, aes_encrypt_round_masked_l4
-    ldr     r3, [sp, #40]   @ 0x28
+    cmp.w   r8, #0
+    beq.n   aes_encrypt_round_masked_l4
+    ldr     r3, [sp, #48]   @ 0x30
     mov.w   r8, r3, lsl #5
     add.w   r2, r8, #4294967295     @ 0xffffffff
     adds    r7, r6, #3
@@ -508,5 +512,4 @@ aes_encrypt_round_masked_l7:
     add.w   r4, r4, #4
     bne.n   aes_encrypt_round_masked_l8
 aes_encrypt_round_masked_l4:
-    ldmia.w sp!, {r3, r4, r5, r6, r7, r8, r9, pc}
-    nop
+    ldmia.w sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, pc}
