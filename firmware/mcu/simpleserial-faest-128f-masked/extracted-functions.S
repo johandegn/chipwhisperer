@@ -85,11 +85,13 @@ aes_extend_witness_masked_output_loop:
     subs    r2, r3, r5
     ldrb    r4, [r4, r2]
     strb.w  r4, [ip, #1]!
+    strb    r1, [r3]                // CLEAR
     ldr     r4, [r1, #4]
     ldrb    r2, [r4, r2]
     strb.w  r2, [r3], #1
     cmp     r3, lr
     bne.n   aes_extend_witness_masked_output_loop
+    mov     r4, #7                  // CLEAR
     pop     {r4, r5, pc}
 aes_extend_witness_masked_output_early_return:
     bx      lr

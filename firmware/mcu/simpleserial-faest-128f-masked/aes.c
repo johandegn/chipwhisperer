@@ -108,7 +108,7 @@ void aes_increment_iv(uint8_t* iv) {
 
 // ## AES ##
 // Round Functions
-static void add_round_key(unsigned int round, aes_block_t state, const aes_round_keys_t* round_key,
+static void __attribute__ ((noinline)) add_round_key(unsigned int round, aes_block_t state, const aes_round_keys_t* round_key,
                           unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
     xor_u8_array(&state[c][0], &round_key->round_keys[round][c][0], &state[c][0], AES_NR);
@@ -257,7 +257,7 @@ static void load_state(aes_block_t state, const uint8_t* src, unsigned int block
   }
 }
 
-static void store_state(uint8_t* dst, aes_block_t state, unsigned int block_words) {
+static void __attribute__ ((noinline)) store_state(uint8_t* dst, aes_block_t state, unsigned int block_words) {
   for (unsigned int i = 0; i != block_words * 4; ++i) {
     bf8_store(&dst[i], state[i / 4][i % 4]);
   }
@@ -681,9 +681,6 @@ void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key
       tmp_share[0][0] ^= round_constants((k / key_words) - 1);
     }
 
-    if (key_words > 6 && (k % key_words) == 4) {
-      sub_words_masked(&tmp_share[0][0]);
-    }
     unsigned int m = k - key_words;
     round_keys_share[0].round_keys[k / block_words][k % block_words][0] =
         round_keys_share[0].round_keys[m / block_words][m % block_words][0] ^ tmp_share[0][0];
@@ -742,20 +739,22 @@ uint8_t* init_round_0_key(uint8_t* w_share[2], uint8_t* w, uint8_t* w_out,
   return w;
 }
 
-void aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t** w, uint8_t* w_out, unsigned int round) {
+void __attribute__ ((noinline)) aes_encrypt_round_masked_inner(aes_block_t* state, unsigned int block_words,  aes_round_keys_t* round_key, uint8_t* w_share, uint8_t** w, uint8_t* w_out, unsigned int round) {
+  shift_row(state[0], block_words);
+  store_state(w_share + (*w - w_out), state[0], block_words);
+  mix_column(state[0], block_words);
+  add_round_key(round, state[0], round_key, block_words);
+}
+
+void __attribute__ ((noinline)) aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t** w, uint8_t* w_out, unsigned int round) {
   sub_bytes_masked(&state_share[0], &state_share[1], block_words);
 
-  shift_row(state_share[0], block_words);
-  store_state(w_share[0] + (*w - w_out), state_share[0], block_words);
-  mix_column(state_share[0], block_words);
-  add_round_key(round, state_share[0], &round_keys_share[0], block_words);
+  aes_encrypt_round_masked_inner(&state_share[0], block_words, &round_keys_share[0], w_share[0], w, w_out, round);
+  aes_encrypt_round_masked_inner(&state_share[1], block_words, &round_keys_share[1], w_share[1], w, w_out, round);
 
-  shift_row(state_share[1], block_words);
-  store_state(w_share[1] + (*w - w_out), state_share[1], block_words);
-  mix_column(state_share[1], block_words);
-  add_round_key(round, state_share[1], &round_keys_share[1], block_words);
   *w += sizeof(aes_word_t) * block_words;
 }
+
 uint8_t* aes_extend_witness_masked_output(uint8_t* w_out, uint8_t * const w_share[2], unsigned int l);
 /*
 uint8_t* aes_extend_witness_masked_output(uint8_t* w_out, uint8_t * const w_share[2], unsigned int l) {
