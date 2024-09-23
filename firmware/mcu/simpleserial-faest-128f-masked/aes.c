@@ -587,13 +587,14 @@ uint8_t* aes_extend_witness(const uint8_t* key, const uint8_t* in, const faest_p
 //  Masked implementation
 // #######################
 
+void bf8_inv_masked(bf8_t* in_0, bf8_t* in_1, bf8_t* out_0, bf8_t* out_1);
+/*
 void bf8_inv_masked(bf8_t* in_0, bf8_t* in_1, bf8_t* out_0, bf8_t* out_1) {
   bf8_t r = 0;
-  /*
-  do {
-    rand_mask(&r, 1);
-  } while(r == 0);
-  */
+
+  //do {
+  //  rand_mask(&r, 1);
+  //} while(r == 0);
   
   //rand_mask(&r, 1);
   // map 0 -> 1, and otherwize no change
@@ -614,6 +615,7 @@ void bf8_inv_masked(bf8_t* in_0, bf8_t* in_1, bf8_t* out_0, bf8_t* out_1) {
   *out_0 = bf8_mul(y0, r);
   *out_1 = bf8_mul(r, y1);
 }
+*/
 
 void compute_sbox_masked(bf8_t* in_0, bf8_t* in_1, bf8_t* out_0, bf8_t* out_1);
 
@@ -626,7 +628,7 @@ void __attribute__ ((noinline)) compute_sbox_masked(bf8_t* in_0, bf8_t* in_1, bf
 }
 */
 
-static void __attribute__ ((noinline)) sub_bytes_masked(aes_block_t* state_0, aes_block_t* state_1, unsigned int block_words) {
+void __attribute__ ((noinline)) sub_bytes_masked(aes_block_t* state_0, aes_block_t* state_1, unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
     for (unsigned int r = 0; r < AES_NR; r++) {
       bf8_t* share_0 = state_0[0][c] + r;
@@ -746,6 +748,8 @@ void __attribute__ ((noinline)) aes_encrypt_round_masked_inner(aes_block_t* stat
   add_round_key(round, state[0], round_key, block_words);
 }
 
+void __attribute__ ((noinline)) aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t** w, uint8_t* w_out, unsigned int round);
+/*
 void __attribute__ ((noinline)) aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t** w, uint8_t* w_out, unsigned int round) {
   sub_bytes_masked(&state_share[0], &state_share[1], block_words);
 
@@ -754,6 +758,7 @@ void __attribute__ ((noinline)) aes_encrypt_round_masked(aes_block_t state_share
 
   *w += sizeof(aes_word_t) * block_words;
 }
+*/
 
 uint8_t* aes_extend_witness_masked_output(uint8_t* w_out, uint8_t * const w_share[2], unsigned int l);
 /*
@@ -880,7 +885,6 @@ uint8_t* aes_extend_witness_masked(const uint8_t* key_share, const uint8_t* in_s
   }
 
   // Saving the expanded key parts to the extended witness
-
   // Step 4
   if (L_ke > 0) {
     w = init_round_0_key(w_share, w, w_out, params, round_keys_share);

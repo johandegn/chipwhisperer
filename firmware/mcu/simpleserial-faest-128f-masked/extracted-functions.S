@@ -95,3 +95,98 @@ aes_extend_witness_masked_output_loop:
     pop     {r4, r5, pc}
 aes_extend_witness_masked_output_early_return:
     bx      lr
+
+
+.global aes_encrypt_round_masked
+aes_encrypt_round_masked:
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    sub     sp, #20
+    ldrd    r5, sl, [sp, #56]       @ 0x38
+    add.w   r9, r0, #32
+    ldr.w   fp, [sp, #64]   @ 0x40
+    mov     r4, r1
+    mov     r6, r2
+    mov     r2, r1
+    mov     r1, r9
+    mov     r7, r3
+    mov     r8, r0
+    bl      sub_bytes_masked
+    mov     r0, #7                              // CLEAR
+    mov     r2, #7                              // CLEAR
+    strd    r0, r2, [sp, #4]                    // CLEAR
+    strd    sl, fp, [sp, #4]
+    str     r5, [sp, #0]
+    ldr     r3, [r7, #0]
+    mov     r0, r8
+    mov     r2, r6
+    mov     r1, r4
+    bl      aes_encrypt_round_masked_inner
+    mov     r0, #7                              // CLEAR
+    mov     r2, #7                              // CLEAR
+    strd    r0, r2, [sp, #4]                    // CLEAR
+    strd    sl, fp, [sp, #4]
+    add.w   r2, r6, #480    @ 0x1e0
+    ldr     r3, [r7, #4]
+    str     r5, [sp, #0]
+    mov     r0, r9
+    mov     r1, r4
+    bl      aes_encrypt_round_masked_inner
+    mov     r0, #7                              // CLEAR
+    mov     r2, #7                              // CLEAR
+    strd    r0, r2, [sp, #4]                    // CLEAR
+    ldr     r3, [r5, #0]
+    add.w   r3, r3, r4, lsl #2
+    str     r3, [r5, #0]
+    add     sp, #20
+    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+/*
+*/
+
+.global bf8_inv_masked
+bf8_inv_masked:
+    stmdb   sp!, {r4, r5, r6, r7, r8, lr}
+    sub     sp, #8
+    mov     r6, r2
+    mov     r5, r3
+    mov     r8, r0
+    mov     r7, r1
+    bl      bf64_rand
+    ldr     r3, =0x80808081
+    adds    r4, r0, r1
+    adc.w   r4, r4, #0
+    umull   r3, ip, r3, r4
+    mov.w   ip, ip, lsr #7
+    rsb     ip, ip, ip, lsl #8
+    sub.w   r4, r4, ip
+    adds    r4, #1
+    uxtb    r4, r4
+    ldrb.w  r0, [r8]
+    mov     r1, r4
+    bl      bf8_mul
+    ldrb    r1, [r7, #0]
+    mov     r8, r0
+    mov     r0, r4
+    bl      bf8_mul
+    eor.w   r0, r8, r0
+    uxtb    r0, r0
+    bl      bf8_inv
+    movs    r3, #0
+    mov     r7, r0
+    movs    r1, #1
+    add.w   r0, sp, #7
+    strb.w  r3, [sp, #7]
+    bl      rand_mask
+    ldrb.w  r8, [sp, #7]
+    eor.w   r0, r8, r7
+    mov     r1, r4
+    uxtb    r0, r0
+    bl      bf8_mul
+    mov     r1, r8
+    strb    r6, [r6, #0]                // CLEAR
+    strb    r0, [r6, #0]
+    mov     r0, r4
+    bl      bf8_mul
+    strb    r5, [r5, #0]                // CLEAR
+    strb    r0, [r5, #0]
+    add     sp, #8
+    ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
