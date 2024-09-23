@@ -190,3 +190,133 @@ bf8_inv_masked:
     strb    r0, [r5, #0]
     add     sp, #8
     ldmia.w sp!, {r4, r5, r6, r7, r8, pc}
+
+
+.global expand_128key_masked
+expand_128key_masked:
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    sub     sp, #12
+    mov     r6, r0
+    ldr     r5, [sp, #48]   @ 0x30
+    mov     r4, r3
+    mov     r7, r2
+    cbz     r2, expand_128key_masked_l1
+    mov     r2, r1
+    movs    r0, #0
+ expand_128key_masked_l2:
+    udiv    ip, r0, r4
+    mls     r3, r4, ip, r0
+    add.w   r3, r3, ip, lsl #3
+    ldrb.w  ip, [r2]
+    strb.w  ip, [r6, r3, lsl #2]
+    add.w   r3, r6, r3, lsl #2
+    ldrb.w  ip, [r2, #1]
+    strb.w  ip, [r3, #1]
+    ldrb.w  ip, [r2, #2]
+    strb.w  ip, [r3, #2]
+    mov     ip, r0
+    adds    r0, #1
+    ldrb.w  lr, [r2, #3]
+    strb.w  lr, [r3, #3]
+    cmp     r7, r0
+    add.w   r2, r2, #4
+    bne.n   expand_128key_masked_l2
+    movs    r2, #0
+ expand_128key_masked_l3:
+    udiv    r0, r2, r4
+    mls     r3, r4, r0, r2
+    add.w   r3, r3, r0, lsl #3
+    add.w   r3, r6, r3, lsl #2
+    ldrb.w  r0, [r1, #32]
+    strb.w  r0, [r3, #480]  @ 0x1e0
+    ldrb.w  r0, [r1, #33]   @ 0x21
+    strb.w  r0, [r3, #481]  @ 0x1e1
+    ldrb.w  r0, [r1, #34]   @ 0x22
+    strb.w  r0, [r3, #482]  @ 0x1e2
+    ldrb.w  lr, [r1, #35]   @ 0x23
+    strb.w  lr, [r3, #483]  @ 0x1e3
+    cmp     ip, r2
+    add.w   r1, r1, #4
+    add.w   r2, r2, #1
+    bne.n   expand_128key_masked_l3
+ expand_128key_masked_l1:
+    mla     sl, r5, r4, r4
+    cmp     r7, sl
+    bcs.n   expand_128key_masked_l4
+    ldr.w   r8, =0x08002910
+    mov     r5, r7
+    add.w   r9, r6, #480    @ 0x1e0
+    b.n     expand_128key_masked_l5
+ expand_128key_masked_l6:
+    subs    r2, r5, r7
+    udiv    r3, r2, r4
+    mls     r2, r4, r3, r2
+    add.w   r2, r2, r3, lsl #3
+    ldrb.w  lr, [sp, #1]
+    ldrb.w  ip, [sp, #2]
+    udiv    r0, r5, r4
+    movs    r3, #0
+    bfi     r3, r1, #0, #8
+    bfi     r3, lr, #8, #8
+    ldrb.w  lr, [sp, #3]
+    mls     r1, r4, r0, r5
+    bfi     r3, ip, #16, #8
+    ldr.w   ip, [r6, r2, lsl #2]
+    add.w   r1, r1, r0, lsl #3
+    bfi     r3, lr, #24, #8
+    eor.w   r3, r3, ip
+    str.w   r3, [r6, r1, lsl #2]
+    ldr     r3, [sp, #4]
+    ldr.w   r2, [r9, r2, lsl #2]
+    adds    r5, #1
+    eors    r3, r2
+    cmp     r5, sl
+    str.w   r3, [r9, r1, lsl #2]
+    beq.n   expand_128key_masked_l4
+ expand_128key_masked_l5:
+    udiv    fp, r5, r7
+    subs    r3, r5, #1
+    udiv    r2, r3, r4
+    mls     r3, r4, r2, r3
+    add.w   r3, r3, r2, lsl #3
+    add.w   r2, r3, #120    @ 0x78
+    ldr.w   r3, [r6, r3, lsl #2]
+    str     r3, [sp, #0]
+    ldr.w   r0, [r6, r2, lsl #2]
+    str     r0, [sp, #4]
+    mls     r2, r7, fp, r5
+    uxtb    r1, r3
+    cmp     r2, #0
+    bne.n   expand_128key_masked_l6
+    ubfx    lr, r3, #8, #8
+    mov     ip, r2
+    bfi     r2, lr, #0, #8
+    mov     lr, #7                      // CLEAR
+    ubfx    lr, r0, #8, #8
+    bfi     ip, lr, #0, #8
+    ubfx    lr, r3, #16, #8
+    bfi     r2, lr, #8, #8
+    lsrs    r3, r3, #24
+    lsrs    r3, r3, #24
+    bfi     r2, r3, #16, #8
+    ubfx    r3, r0, #16, #8
+    bfi     ip, r3, #8, #8
+    add.w   fp, fp, #4294967295     @ 0xffffffff
+    lsrs    r3, r0, #24
+    bfi     ip, r3, #16, #8
+    uxtab   fp, r8, fp
+    bfi     r2, r1, #24, #8
+    bfi     ip, r0, #24, #8
+    mov     r0, sp
+    str     r2, [sp, #0]
+    str     sp, [sp, #4]                // CLEAR
+    str.w   ip, [sp, #4]
+    bl      sub_words_masked
+    ldrb.w  r3, [sp]
+    ldrb.w  r1, [fp, #256]  @ 0x100
+    eors    r1, r3
+    b.n     expand_128key_masked_l6
+ expand_128key_masked_l4:
+    add     sp, #12
+    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+

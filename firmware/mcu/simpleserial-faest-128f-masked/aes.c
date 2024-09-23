@@ -173,7 +173,7 @@ static void mix_column(aes_block_t state, unsigned int block_words) {
 }
 
 // Key Expansion functions
-static void sub_words(bf8_t* words) {
+void sub_words(bf8_t* words) {
   words[0] = compute_sbox(words[0]);
   words[1] = compute_sbox(words[1]);
   words[2] = compute_sbox(words[2]);
@@ -643,12 +643,16 @@ void __attribute__ ((noinline)) sub_bytes_masked(aes_block_t* state_0, aes_block
   }
 }
 
-static void __attribute__ ((noinline)) sub_words_masked(bf8_t* words) {
+void __attribute__ ((noinline)) sub_words_masked(bf8_t* words) {
   for (int i = 0; i < 4; i++) {
     compute_sbox_masked(words + i, words + i + AES_NR, words + i, words + i + AES_NR);
   }
 }
 
+void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key_share,
+                          unsigned int key_words, unsigned int block_words,
+                          unsigned int num_rounds);
+/*
 void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key_share,
                           unsigned int key_words, unsigned int block_words,
                           unsigned int num_rounds) {
@@ -708,6 +712,7 @@ void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key
         round_keys_share[1].round_keys[m / block_words][m % block_words][3] ^ tmp_share[1][3];
   }
 }
+*/
 
 void aes128_init_round_keys_masked(aes_round_keys_t* round_key_share, const uint8_t* key) {
   expand_128key_masked(round_key_share, key, KEY_WORDS_128, AES_BLOCK_WORDS, ROUNDS_128);
