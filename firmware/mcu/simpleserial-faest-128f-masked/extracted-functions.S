@@ -34,7 +34,7 @@ clean_call_loop:
 
 .global compute_sbox_masked
 compute_sbox_masked:
-    push    {r3, r4, r5, r6, lr}
+    push    {r4, r5, r6, lr}
     sub     sp, #4
     mov     r6, #0
     str     r6, [sp]
@@ -67,7 +67,7 @@ compute_sbox_masked:
     ldrb    r1, [sp]    //CLEAR
 
     add     sp, #4
-    pop     {r3, r4, r5, r6, pc}
+    pop     {r4, r5, r6, pc}
 
 
 .global aes_extend_witness_masked_output

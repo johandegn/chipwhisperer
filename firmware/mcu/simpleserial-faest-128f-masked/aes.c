@@ -188,6 +188,11 @@ static void rot_word(bf8_t* words) {
   words[3]  = tmp;
 }
 
+void __attribute__ ((noinline)) rot_all_words(bf8_t tmp_share[2][4]) {
+  rot_word(tmp_share[0]);
+  rot_word(tmp_share[1]);
+}
+
 int expand_key(aes_round_keys_t* round_keys, const uint8_t* key, unsigned int key_words,
                unsigned int block_words, unsigned int num_rounds) {
   int ret = 0;
@@ -631,8 +636,8 @@ void __attribute__ ((noinline)) compute_sbox_masked(bf8_t* in_0, bf8_t* in_1, bf
 void __attribute__ ((noinline)) sub_bytes_masked(aes_block_t* state_0, aes_block_t* state_1, unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
     for (unsigned int r = 0; r < AES_NR; r++) {
-      bf8_t* share_0 = state_0[0][c] + r;
-      bf8_t* share_1 = state_1[0][c] + r;
+      bf8_t* share_0 = (*state_0)[c] + r;
+      bf8_t* share_1 = (*state_1)[c] + r;
       compute_sbox_masked(share_0, share_1, share_0, share_1);
     }
   }
@@ -679,6 +684,7 @@ void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key
     if (k % key_words == 0) {
       rot_word(tmp_share[0]);
       rot_word(tmp_share[1]);
+      //rot_all_words(tmp_share);
       sub_words_masked(&tmp_share[0][0]);
       tmp_share[0][0] ^= round_constants((k / key_words) - 1);
     }
@@ -741,12 +747,13 @@ uint8_t* init_round_0_key(uint8_t* w_share[2], uint8_t* w, uint8_t* w_out,
   return w;
 }
 
-void __attribute__ ((noinline)) aes_encrypt_round_masked_inner(aes_block_t* state, unsigned int block_words,  aes_round_keys_t* round_key, uint8_t* w_share, uint8_t** w, uint8_t* w_out, unsigned int round) {
-  shift_row(state[0], block_words);
-  store_state(w_share + (*w - w_out), state[0], block_words);
-  mix_column(state[0], block_words);
-  add_round_key(round, state[0], round_key, block_words);
+void __attribute__ ((noinline)) aes_encrypt_round_masked_inner(aes_block_t* state_share, unsigned int block_words,  aes_round_keys_t* round_key, uint8_t* w_share, uint8_t** w, uint8_t* w_out, unsigned int round) {
+  shift_row(state_share[0], block_words);
+  store_state(w_share + (*w - w_out), state_share[0], block_words);
+  mix_column(state_share[0], block_words);
+  add_round_key(round, state_share[0], round_key, block_words);
 }
+
 
 void __attribute__ ((noinline)) aes_encrypt_round_masked(aes_block_t state_share[2], unsigned int block_words,  aes_round_keys_t round_keys_share[2], uint8_t* w_share[2], uint8_t** w, uint8_t* w_out, unsigned int round);
 /*
