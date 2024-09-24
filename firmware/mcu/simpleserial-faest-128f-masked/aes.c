@@ -39,7 +39,7 @@ static const bf8_t round_constants_table[30] = {
     0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91,
 };
 
-bf8_t round_constants(bf8_t b) {
+bf8_t __attribute__ ((noinline)) round_constants(bf8_t b) {
   return round_constants_table[b];
 }
 
@@ -180,18 +180,16 @@ void sub_words(bf8_t* words) {
   words[3] = compute_sbox(words[3]);
 }
 
-static void rot_word(bf8_t* words) {
+void rot_word(bf8_t* words);
+/*
+void __attribute__ ((noinline)) rot_word(bf8_t* words) {
   bf8_t tmp = words[0];
   words[0]  = words[1];
   words[1]  = words[2];
   words[2]  = words[3];
   words[3]  = tmp;
 }
-
-void __attribute__ ((noinline)) rot_all_words(bf8_t tmp_share[2][4]) {
-  rot_word(tmp_share[0]);
-  rot_word(tmp_share[1]);
-}
+*/
 
 int expand_key(aes_round_keys_t* round_keys, const uint8_t* key, unsigned int key_words,
                unsigned int block_words, unsigned int num_rounds) {
@@ -688,7 +686,6 @@ void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key
     if (k % key_words == 0) {
       rot_word(tmp_share[0]);
       rot_word(tmp_share[1]);
-      //rot_all_words(tmp_share);
       sub_words_masked(&tmp_share[0][0]);
       tmp_share[0][0] ^= round_constants((k / key_words) - 1);
     }
