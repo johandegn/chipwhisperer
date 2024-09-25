@@ -140,6 +140,48 @@ aes_encrypt_round_masked:
     add     sp, #20
     ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
+.global bf8_mul:
+bf8_mul:
+    push    {lr}
+    lsrs    r3, r1, #7
+    add     r3, r3, r3, lsl #1
+    add     r3, r3, r3, lsl #3
+    sub     sp, #12
+    eor     r3, r3, r1, lsl #1
+    mov     r2, r1
+    uxtb    r3, r3
+    strb    r2, [sp, #5]
+    strb    r3, [sp, #6]
+    eors    r2, r3
+    add     r3, sp, #8
+    movs    r1, #0
+    add     r3, r3, r0, lsr #6
+    strb    r1, [sp]            // CLEAR
+    strb    r1, [sp, #1]        // CLEAR
+    strb    r1, [sp, #4]
+    strb    r2, [sp, #7]
+    ldrb    r2, [r3, #-4]
+    mov     ip, #4
+ bf8_mul_loop:
+    asr     r3, r0, ip
+    and     r3, r3, #3
+    add     r3, sp
+    mov     lr, r2, asr #6
+    ldrb    r3, [r3, #4]
+    sub     ip, ip, #2
+    orr     r1, lr, r1, lsl #2
+    eor     r2, r3, r2, lsl #2
+    cmn     ip, #2
+    uxtb    r1, r1
+    uxtb    r2, r2
+    bne     bf8_mul_loop:
+    mov     r0, sp
+    strb    r2, [sp]
+    strb    r1, [sp, #1]
+    bl      bf8_reduce
+    add     sp, #12
+    ldr     pc, [sp], #4
+
 
 .global bf8_inv_masked
 bf8_inv_masked:

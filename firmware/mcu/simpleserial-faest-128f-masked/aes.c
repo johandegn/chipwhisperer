@@ -129,7 +129,7 @@ static int sub_bytes(aes_block_t state, unsigned int block_words) {
 }
 
 static void shift_row(aes_block_t state, unsigned int block_words) {
-  aes_block_t new_state;
+  aes_block_t new_state = {0};
   switch (block_words) {
   case 4:
   case 6:
