@@ -140,7 +140,7 @@ aes_encrypt_round_masked:
     add     sp, #20
     ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
-.global bf8_mul:
+.global bf8_mul
 bf8_mul:
     push    {lr}
     lsrs    r3, r1, #7
@@ -174,7 +174,7 @@ bf8_mul:
     cmn     ip, #2
     uxtb    r1, r1
     uxtb    r2, r2
-    bne     bf8_mul_loop:
+    bne     bf8_mul_loop
     mov     r0, sp
     strb    r2, [sp]
     strb    r1, [sp, #1]

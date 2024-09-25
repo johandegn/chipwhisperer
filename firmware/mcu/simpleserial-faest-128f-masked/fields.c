@@ -50,6 +50,8 @@ bf8_t bf8_reduce(uint8_t C[2]){
   return C[0];
 }
 
+bf8_t bf8_mul(bf8_t a, bf8_t b);
+/*
 #define bf8_mul_w 2
 #define bf8_mul_u_amount (2 << (bf8_mul_w - 1))
 bf8_t bf8_mul(bf8_t a, bf8_t b){
@@ -87,6 +89,7 @@ bf8_t bf8_mul(bf8_t a, bf8_t b){
 
   return bf8_reduce(C);
 }
+*/
 
 static bf8_t bf8_square(bf8_t lhs) {
   return bf8_mul(lhs, lhs);
