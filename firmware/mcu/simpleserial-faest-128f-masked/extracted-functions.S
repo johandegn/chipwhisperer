@@ -307,6 +307,12 @@ expand_128key_masked_l6:
     bfi     r2, lr, #24, #8
     eor.w   r2, r2, ip
     str.w   r2, [r6, r1, lsl #2]
+    nop                                     // CLEAR
+    mov     r2, #0                          // CLEAR
+    strb    r6, [sp, #0]                    // CLEAR
+    nop                                     // CLEAR
+    mov     r3, #0                          // CLEAR          
+    nop                                     // CLEAR
     ldr     r2, [sp, #4]
     ldr.w   r3, [r8, r3, lsl #2]
     adds    r5, #1
@@ -320,12 +326,17 @@ expand_128key_masked_l5:
     mov     r1, #0                          // CLEAR
     nop
     mov     r2, #0                          // CLEAR
+    nop
+    mov     lr, #0                          // CLEAR
+    nop
+    mov     r0, #0                          // CLEAR
     udiv    sl, r5, r7
     subs    r3, r5, #1
     udiv    r2, r3, r4
     mls     r3, r4, r2, r3
     add.w   r3, r3, r2, lsl #3
     add.w   r2, r3, #120    @ 0x78
+    str     r6, [sp, #0]                    // CLEAR
     ldr     r1, [sp, #40]                   // CLEAR
     ldr.w   r3, [r6, r3, lsl #2]
     str     r3, [sp, #0]
