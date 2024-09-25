@@ -315,6 +315,11 @@ expand_128key_masked_l6:
     str.w   r3, [r8, r1, lsl #2]
     beq.n   expand_128key_masked_l4
 expand_128key_masked_l5:
+    mov     r3, #0                          // CLEAR
+    nop
+    mov     r1, #0                          // CLEAR
+    nop
+    mov     r2, #0                          // CLEAR
     udiv    sl, r5, r7
     subs    r3, r5, #1
     udiv    r2, r3, r4
