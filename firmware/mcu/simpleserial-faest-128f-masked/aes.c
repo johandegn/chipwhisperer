@@ -128,7 +128,9 @@ static int sub_bytes(aes_block_t state, unsigned int block_words) {
   return ret;
 }
 
-static void shift_row(aes_block_t state, unsigned int block_words) {
+void shift_row(aes_block_t state, unsigned int block_words);
+/*
+void shift_row(aes_block_t state, unsigned int block_words) {
   aes_block_t new_state = {0};
   switch (block_words) {
   case 4:
@@ -154,8 +156,11 @@ static void shift_row(aes_block_t state, unsigned int block_words) {
     memcpy(&state[i][0], &new_state[i][0], AES_NR);
   }
 }
+*/
 
-static void mix_column(aes_block_t state, unsigned int block_words) {
+void mix_column(aes_block_t state, unsigned int block_words);
+/*
+void mix_column(aes_block_t state, unsigned int block_words) {
   for (unsigned int c = 0; c < block_words; c++) {
     bf8_t tmp = bf8_mul(state[c][0], 0x02) ^ bf8_mul(state[c][1], 0x03) ^ state[c][2] ^ state[c][3];
     bf8_t tmp_1 =
@@ -171,6 +176,7 @@ static void mix_column(aes_block_t state, unsigned int block_words) {
     state[c][3] = tmp_3;
   }
 }
+*/
 
 // Key Expansion functions
 void sub_words(bf8_t* words) {
