@@ -508,9 +508,9 @@ expand_128key_masked_l6:
     str.w   r2, [r6, r1, lsl #2]
     nop                                     // CLEAR
     mov     r2, #0                          // CLEAR
-    strb    r6, [sp, #0]                    // CLEAR
+    str     r6, [sp, #0]                    // CLEAR
     nop                                     // CLEAR
-    mov     r3, #0                          // CLEAR          
+    mov     r3, #0                          // CLEAR
     nop                                     // CLEAR
     ldr     r2, [sp, #4]
     ldr.w   r3, [r8, r3, lsl #2]
@@ -521,13 +521,15 @@ expand_128key_masked_l6:
     beq.n   expand_128key_masked_l4
 expand_128key_masked_l5:
     mov     r3, #0                          // CLEAR
-    nop
+    nop                                     // CLEAR
     mov     r1, #0                          // CLEAR
-    nop
+    nop                                     // CLEAR
     mov     r2, #0                          // CLEAR
-    nop
+    nop                                     // CLEAR
     mov     lr, #0                          // CLEAR
-    nop
+    nop                                     // CLEAR
+    mov     ip, #0                          // CLEAR
+    nop                                     // CLEAR
     mov     r0, #0                          // CLEAR
     udiv    sl, r5, r7
     subs    r3, r5, #1
@@ -560,6 +562,10 @@ expand_128key_masked_l5:
     b.n     expand_128key_masked_l6
 expand_128key_masked_l4:
     // CLEAR STACK
+    mov     r3, #0
+    nop
+    mov     r2, #0
+    nop
     mov     r1, #0
     str     r1, [sp]
     str     r1, [sp, #4]
