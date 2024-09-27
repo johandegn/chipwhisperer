@@ -510,8 +510,6 @@ expand_128key_masked_l6:
     mov     r2, #0                          // CLEAR
     str     r6, [sp, #0]                    // CLEAR
     nop                                     // CLEAR
-    mov     r3, #0                          // CLEAR
-    nop                                     // CLEAR
     ldr     r2, [sp, #4]
     ldr.w   r3, [r8, r3, lsl #2]
     adds    r5, #1
@@ -565,6 +563,8 @@ expand_128key_masked_l4:
     mov     r3, #0
     nop
     mov     r2, #0
+    nop
+    mov     r0, #0
     nop
     mov     r1, #0
     str     r1, [sp]
