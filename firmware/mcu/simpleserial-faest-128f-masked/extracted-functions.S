@@ -482,12 +482,13 @@ expand_128key_masked_l3:
 expand_128key_masked_l1:
     mla     r9, r5, r4, r4
     cmp     r7, r9
-    bcs.n   expand_128key_masked_l4
+    bcs.n   expand_128key_masked_l4_step
     mov     r5, r7
     add.w   r8, r6, #480    @ 0x1e0
     b.n     expand_128key_masked_l5
 expand_128key_masked_l6:
     uxtb    r1, r3
+    mov     r3, #0                          // CLEAR
     subs    r3, r5, r7
     udiv    r2, r3, r4
     mls     r3, r4, r2, r3
@@ -497,26 +498,38 @@ expand_128key_masked_l6:
     udiv    r0, r5, r4
     movs    r2, #0
     bfi     r2, r1, #0, #8
+    mov     r1, #0                          // CLEAR
     bfi     r2, lr, #8, #8
+    mov     lr, #0                          // CLEAR
     ldrb.w  lr, [sp, #3]
     mls     r1, r4, r0, r5
     bfi     r2, ip, #16, #8
+    mov     ip, #0                          // CLEAR
     ldr.w   ip, [r6, r3, lsl #2]
     add.w   r1, r1, r0, lsl #3
     bfi     r2, lr, #24, #8
+    mov     lr, #0                          // CLEAR
     eor.w   r2, r2, ip
     str.w   r2, [r6, r1, lsl #2]
     nop                                     // CLEAR
+    ldr     ip, [sp, #40]                   // CLEAR
+    nop                                     // CLEAR
     mov     r2, #0                          // CLEAR
+    nop                                     // CLEAR
     str     r6, [sp, #0]                    // CLEAR
     nop                                     // CLEAR
     ldr     r2, [sp, #4]
+    ldr     ip, [sp, #40]                   // CLEAR
     ldr.w   r3, [r8, r3, lsl #2]
+    ldr     ip, [sp, #40]                   // CLEAR
     adds    r5, #1
     eors    r3, r2
     cmp     r5, r9
     str.w   r3, [r8, r1, lsl #2]
-    beq.n   expand_128key_masked_l4
+    str     r6, [sp, #4]                    // CLEAR
+    bne.n   expand_128key_masked_l5
+expand_128key_masked_l4_step:
+    b       expand_128key_masked_l4
 expand_128key_masked_l5:
     mov     r3, #0                          // CLEAR
     nop                                     // CLEAR
@@ -529,20 +542,23 @@ expand_128key_masked_l5:
     mov     ip, #0                          // CLEAR
     nop                                     // CLEAR
     mov     r0, #0                          // CLEAR
+    str     r0, [sp]                        // CLEAR
+    str     r0, [sp, #4]                    // CLEAR
     udiv    sl, r5, r7
     subs    r3, r5, #1
     udiv    r2, r3, r4
     mls     r3, r4, r2, r3
     add.w   r3, r3, r2, lsl #3
     add.w   r2, r3, #120    @ 0x78
-    str     r6, [sp, #0]                    // CLEAR
-    ldr     r1, [sp, #40]                   // CLEAR
     ldr.w   r3, [r6, r3, lsl #2]
+    ldr     r1, [sp, #40]                   // CLEAR
     str     r3, [sp, #0]
     str     r6, [sp, #4]                    // CLEAR
+    nop                                     // CLEAR
     ldr.w   r1, [r6, r2, lsl #2]
+    ldr     r2, [sp, #40]                   // CLEAR
     str     r1, [sp, #4]
-    ldr     r1, [sp, #40]                   // CLEAR
+    str     r2, [sp, #40]                   // CLEAR
     mls     r2, r7, sl, r5
     cmp     r2, #0
     bne.n   expand_128key_masked_l6
