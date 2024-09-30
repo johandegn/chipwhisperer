@@ -342,9 +342,10 @@ static void aes_key_schedule_constraints_Mkey_0_128_masked(const uint8_t* w_shar
   aes_key_schedule_forward_1(w_share, &k_share[0][0], params);
   aes_key_schedule_forward_1(w_share + FAEST_128F_L/8, &k_share[1][0], params);
   
-  // TODO: LEAKING
   for(int i = 0; i < (params->faest_param.R + 1) * 128 / 8; i++){
     k[i] = k_share[0][i];
+  }
+  for(int i = 0; i < (params->faest_param.R + 1) * 128 / 8; i++){
     k[i + (FAEST_128F_R + 1) * 128 / 8] = k_share[1][i];
   }
 
@@ -370,17 +371,15 @@ static void aes_key_schedule_constraints_Mkey_0_128_masked(const uint8_t* w_shar
     bf128_t bf_v_w_dash_hat_share[2][4];
     for (unsigned int r = 0; r <= 3; r++) {
       // Step: 10..11
-      // TODO: LEAKING
       bf_k_hat_share[0][(r + 3) % 4]   = bf128_byte_combine_bits(k_share[0][(iwd + 8 * r) / 8]);
-      bf_k_hat_share[1][(r + 3) % 4]   = bf128_byte_combine_bits(k_share[1][(iwd + 8 * r) / 8]);
-      // TODO: LEAKING
       bf_v_k_hat_share[0][(r + 3) % 4] = bf128_byte_combine_vk_share(vbb, (iwd + 8 * r), 0);
-      bf_v_k_hat_share[1][(r + 3) % 4] = bf128_byte_combine_vk_share(vbb, (iwd + 8 * r), 1);
-      // TODO: LEAKING
       bf_w_dash_hat_share[0][r]        = bf128_byte_combine_bits(w_dash_share[0][(32 * j + 8 * r) / 8]);
-      bf_w_dash_hat_share[1][r]        = bf128_byte_combine_bits(w_dash_share[1][(32 * j + 8 * r) / 8]);
-      // TODO: LEAKING
       bf_v_w_dash_hat_share[0][r]      = bf128_byte_combine(v_w_dash_share[0] + (32 * j + 8 * r));
+    }
+    for (unsigned int r = 0; r <= 3; r++) {
+      bf_k_hat_share[1][(r + 3) % 4]   = bf128_byte_combine_bits(k_share[1][(iwd + 8 * r) / 8]);
+      bf_v_k_hat_share[1][(r + 3) % 4] = bf128_byte_combine_vk_share(vbb, (iwd + 8 * r), 1);
+      bf_w_dash_hat_share[1][r]        = bf128_byte_combine_bits(w_dash_share[1][(32 * j + 8 * r) / 8]);
       bf_v_w_dash_hat_share[1][r]      = bf128_byte_combine(v_w_dash_share[1] + (32 * j + 8 * r));
     }
 
@@ -408,9 +407,7 @@ static void aes_key_schedule_constraints_Mkey_0_128_masked(const uint8_t* w_shar
       const bf128_t share_1 = bf128_add(bf128_add(bf128_add(bf128_mul(part_d, part_b),bf128_add(bf128_mul(part_d, part_c),mask)), tmp_1), bf128_one());
       // TODO: LEAKING
       zk_hash_128_update(a1_ctx, share_0);
-      zk_hash_128_update(a1_ctx+ 1, share_1);
-      
-      
+      zk_hash_128_update(a1_ctx+ 1, share_1); 
     }
     iwd = iwd + 128;
   }
@@ -993,8 +990,6 @@ static void aes_enc_constraints_Mkey_0_128_masked(const uint8_t* in_share, const
     // TODO: LEAKING
     zk_hash_128_update(a1_ctx, share_0);
     zk_hash_128_update(a1_ctx+ 1, share_1);
-    
-
   }
 }
 
@@ -1061,10 +1056,10 @@ static void aes_prove_128_masked(const uint8_t* w_share, vbb_t* vbb, const uint8
   // Step: 16..18
   uint8_t a_tilde_share[2][FAEST_128F_LAMBDA / 8];
   uint8_t b_tilde_share[2][FAEST_128F_LAMBDA / 8];
-  // TODO: LEAKING?
+  // TODO: (STILL) LEAKING?
   zk_hash_128_finalize(a_tilde_share[0], &a1_ctx_share[0], bf128_load(get_vole_u_share(vbb, 0) + FAEST_128F_L / 8));
-  zk_hash_128_finalize(a_tilde_share[1], &a1_ctx_share[1], bf128_load(get_vole_u_share(vbb, 1) + FAEST_128F_L / 8));
   zk_hash_128_finalize(b_tilde_share[0], &a0_ctx_share[0], bf128_sum_poly_vbb_share(vbb, FAEST_128F_L, 0));
+  zk_hash_128_finalize(a_tilde_share[1], &a1_ctx_share[1], bf128_load(get_vole_u_share(vbb, 1) + FAEST_128F_L / 8));
   zk_hash_128_finalize(b_tilde_share[1], &a0_ctx_share[1], bf128_sum_poly_vbb_share(vbb, FAEST_128F_L, 1));
 
   // LEAKS PUBLIC VALUES...
