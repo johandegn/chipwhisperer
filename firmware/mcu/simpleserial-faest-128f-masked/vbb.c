@@ -84,7 +84,11 @@ void init_vbb_sign(vbb_t* vbb, unsigned int len, const uint8_t* root_key, const 
       vbb->full_size ? vole_mode_all_sign(vbb->vole_cache, vbb->vole_U, vbb->com_hash, c)
                      : vole_mode_u_hcom_c(vbb->vole_U, vbb->com_hash, c);
 
-  partial_vole_commit_cmo(vbb->root_key, vbb->iv, ellhat, 0, lambda, mode, vbb->params);
+  // NOTE - random values for vole
+  rand_bytes(vbb->vole_cache, ellhat_bytes * lambda_bytes);
+  rand_bytes(vbb->vole_U, lambda_bytes);
+  rand_bytes(vbb->com_hash, MAX_LAMBDA_BYTES * 2);
+  //partial_vole_commit_cmo(vbb->root_key, vbb->iv, ellhat, 0, lambda, mode, vbb->params);
 }
 
 void init_stack_allocations_sign(vbb_t* vbb, uint8_t* hcom, uint8_t* u, uint8_t* v,

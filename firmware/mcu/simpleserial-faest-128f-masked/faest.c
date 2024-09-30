@@ -336,11 +336,16 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
     vk_cache = alloca(params->faest_param.Lke * lambdaBytes);
   }
   init_stack_allocations_sign(&vbb, hcom, u, v_cache, v_buf, vk_buf, vk_cache);
+  // NOTE - changed init vbb to gen random values for vole
   init_vbb_sign(&vbb, len, rootkey, signature_iv(sig, params), signature_c(sig, 0, params), params);
 
   uint8_t chall_1[(5 * MAX_LAMBDA_BYTES) + 8];
+  // NOTE - changed to create random chall_1
+  rand_bytes(chall_1, (5 * MAX_LAMBDA_BYTES) + 8);
+  /*
   hash_challenge_1(chall_1, mu, get_com_hash(&vbb), signature_c(sig, 0, params),
                    signature_iv(sig, params), lambda, l, tau);
+  */
 
   vole_hash(signature_u_tilde(sig, params), chall_1, get_vole_u(&vbb), l, lambda);
 
