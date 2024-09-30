@@ -72,10 +72,6 @@ static uint8_t msg_gen(uint8_t* m, uint8_t len) {
     return 0;
 }
 
-void bf8_inv_masked(bf8_t in_share[2], bf8_t out_share[2]);
-void compute_sbox_masked(bf8_t in[2], bf8_t out[2]);
-void sub_words_masked(bf8_t* words);
-void sub_bytes_masked(aes_block_t state_share[2], unsigned int block_words);
 extern uint8_t clean_call(uint8_t* m, uint8_t len);
 
 uint8_t clean_call_wrapper(uint8_t* m, uint8_t len) {
