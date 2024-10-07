@@ -364,7 +364,7 @@ static void aes_key_schedule_backward_1_round(const uint8_t* x, const uint8_t* x
   }
 }
 
-static void aes_key_schedule_backward_128_vbb_vk_round(vbb_t* vbb, uint8_t Mtag, uint8_t Mkey,
+void aes_key_schedule_backward_128_vbb_vk_round(vbb_t* vbb, uint8_t Mtag, uint8_t Mkey,
                                                  const uint8_t* delta, bf128_t* bf_out, unsigned int j, unsigned int share);
 
 /*
