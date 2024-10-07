@@ -612,3 +612,211 @@ rot_word:
     mov     r1, #0                          // CLEAR
     add     sp, #4
     bx      lr
+
+.global aes_key_schedule_backward_128_vbb_vk_round
+aes_key_schedule_backward_128_vbb_vk_round:
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    mov     r4, r2
+    sub     sp, #236        @ 0xec
+    movs    r2, #0
+    str     r2, [sp]                        // CLEAR
+    mov     r8, r3
+    ldr     r6, [sp]                        // CLEAR
+    movs    r3, #0
+    strd    r2, r3, [sp, #48]       @ 0x30
+    strd    r2, r3, [sp, #40]       @ 0x28
+    lsls    r3, r4, #7
+    lsrs    r3, r3, #2
+    str     r3, [sp, #24]
+    add     r3, sp, #48     @ 0x30
+    mov     r6, r0
+    mov     r7, r1
+    ldmia.w r3, {r0, r1}
+    stmia.w sp, {r0, r1}
+    movs    r5, #0
+    str     r5, [sp, #8]
+    add     r3, sp, #40     @ 0x28
+    ldmia   r3, {r2, r3}
+    add     r0, sp, #56     @ 0x38
+    lsls    r4, r4, #3
+    bl      bf128_mul_bit
+    add.w   r3, r4, #128    @ 0x80
+    str     r3, [sp, #28]
+    ldr     r3, [sp, #56]   @ 0x38
+    str     r5, [sp, #20]
+    eor.w   lr, r3, #1
+    add     r3, sp, #56     @ 0x38
+    ldmia   r3, {r0, r1, r2, r3}
+    add     r5, sp, #104    @ 0x68
+    stmia.w r5, {r0, r1, r2, r3}
+    str.w   lr, [sp, #104]  @ 0x68
+    ldmia.w r5, {r0, r1, r2, r3}
+    add.w   r9, sp, #56     @ 0x38
+    ldr.w   ip, [sp, #60]   @ 0x3c
+    stmia.w r9, {r0, r1, r2, r3}
+    strd    ip, lr, [sp, #32]
+    add     r4, sp, #72     @ 0x48
+    mov     sl, r6
+aes_key_l4:
+    ldr     r3, [sp, #28]
+    ldr     r2, [sp, #20]
+    mov     fp, r5
+    add.w   r9, r3, r2
+    mov     r6, r5
+aes_key_l1:
+    mov     r1, r9
+    mov     r2, r8
+    mov     r0, sl
+    bl      get_vole_aes_128_share
+    ldmia   r0, {r0, r1, r2, r3}
+    stmia.w r4, {r0, r1, r2, r3}
+    mov     r1, r9
+    mov     r3, r8
+    mov     r2, r4
+    mov     r0, sl
+    bl      add_vole_to_vk_cache_share
+    ldmia.w r4, {r0, r1, r2, r3}
+    stmia.w r6, {r0, r1, r2, r3}
+    adds    r6, #16
+    add     r3, sp, #232    @ 0xe8
+    cmp     r3, r6
+    add.w   r9, r9, #1
+    bne.n   aes_key_l1
+    ldrd    r2, r3, [sp, #20]
+    adds    r6, r3, r2
+aes_key_l2:
+    mov     r1, r6
+    mov     r2, r8
+    mov     r0, sl
+    bl      get_vk_128_share
+    ldrd    r2, ip, [r0, #8]
+    ldrd    r3, r1, [r0]
+    ldr.w   r0, [fp, #8]
+    eors    r2, r0
+    str.w   r2, [fp, #8]
+    ldr.w   r2, [fp, #12]
+    eor.w   r2, ip, r2
+    str.w   r2, [fp, #12]
+    ldr.w   r2, [fp]
+    eors    r3, r2
+    str.w   r3, [fp]
+    ldr.w   r3, [fp, #4]
+    eors    r3, r1
+    str.w   r3, [fp, #4]
+    add.w   fp, fp, #16
+    add     r3, sp, #232    @ 0xe8
+    cmp     r3, fp
+    add.w   r6, r6, #1
+    bne.n   aes_key_l2
+    mov     r2, r7
+    movs    r3, #7
+    mov     fp, r7
+aes_key_l3:
+    subs    r6, r3, #2
+    and.w   r0, r3, #7
+    and.w   r6, r6, #7
+    add.w   ip, r5, r0, lsl #4
+    add.w   r9, r5, r6, lsl #4
+    subs    r1, r3, #5
+    lsls    r0, r0, #4
+    lsls    r6, r6, #4
+    and.w   r1, r1, #7
+    ldr     r7, [r5, r0]
+    ldr     r0, [r5, r6]
+    add.w   r6, r5, r1, lsl #4
+    lsls    r1, r1, #4
+    eors    r0, r7
+    ldr     r1, [r5, r1]
+    ldr.w   r7, [r9, #8]
+    eors    r0, r1
+    ldr.w   r1, [ip, #8]
+    eor.w   lr, r7, r1
+    ldr.w   r7, [ip, #12]
+    ldr.w   r1, [r9, #12]
+    ldr.w   r9, [r9, #4]
+    eors    r1, r7
+    ldr.w   r7, [ip, #4]
+    eor.w   ip, r9, r7
+    ldr     r7, [r6, #8]
+    eor.w   lr, lr, r7
+    ldr     r7, [r6, #12]
+    eors    r7, r1
+    ldr     r1, [r6, #4]
+    str     r0, [r2, #0]
+    adds    r3, #1
+    eor.w   r1, ip, r1
+    cmp     r3, #15
+    strd    r1, lr, [r2, #4]
+    str     r7, [r2, #12]
+    add.w   r2, r2, #16
+    bne.n   aes_key_l3
+    ldr     r3, [sp, #36]   @ 0x24
+    str     r3, [sp, #56]   @ 0x38
+    movs    r6, #0
+    ldr     r3, [sp, #32]
+    str     r3, [sp, #60]   @ 0x3c
+    str     r6, [sp, #8]
+    add     r3, sp, #64     @ 0x40
+    ldmia.w r3, {r0, r1}
+    stmia.w sp, {r0, r1}
+    add     r3, sp, #56     @ 0x38
+    ldmia   r3, {r2, r3}
+    add     r0, sp, #88     @ 0x58
+    bl      bf128_mul_bit
+    str     r6, [sp, #8]
+    ldrd    r0, r1, [fp, #8]
+    ldr     r3, [sp, #96]   @ 0x60
+    eors    r3, r0
+    str.w   r3, [fp, #8]
+    ldr     r3, [sp, #100]  @ 0x64
+    ldrd    r2, r6, [fp]
+    eors    r3, r1
+    str.w   r3, [fp, #12]
+    ldr     r3, [sp, #88]   @ 0x58
+    eors    r3, r2
+    str.w   r3, [fp]
+    ldr     r3, [sp, #92]   @ 0x5c
+    eors    r3, r6
+    str.w   r3, [fp, #4]
+    add     r3, sp, #64     @ 0x40
+    ldmia.w r3, {r0, r1}
+    stmia.w sp, {r0, r1}
+    add     r3, sp, #56     @ 0x38
+    ldmia   r3, {r2, r3}
+    add     r0, sp, #88     @ 0x58
+    bl      bf128_mul_bit
+    ldrd    r1, r2, [fp, #40]       @ 0x28
+    ldr     r0, [sp, #96]   @ 0x60
+    ldr     r3, [sp, #20]
+    eors    r1, r0
+    str.w   r1, [fp, #40]   @ 0x28
+    ldr     r1, [sp, #100]  @ 0x64
+    adds    r3, #8
+    str     r3, [sp, #20]
+    eors    r2, r1
+    ldrd    r3, r6, [fp, #32]
+    str.w   r2, [fp, #44]   @ 0x2c
+    ldr     r2, [sp, #88]   @ 0x58
+    eors    r3, r2
+    str.w   r3, [fp, #32]
+    ldr     r3, [sp, #92]   @ 0x5c
+    eors    r6, r3
+    ldr     r3, [sp, #20]
+    str.w   r6, [fp, #36]   @ 0x24
+    mov     r7, fp
+    cmp     r3, #32
+    add.w   r7, r7, #128    @ 0x80
+    bne.w   aes_key_l4
+// CLEAR stack 
+    mov     r1, #236
+    mov     r0, #0
+aes_key_clear_loop:
+    sub     r1, r1, #4
+    str     r0, [sp, r1]
+    cmp     r1, #0
+    bne     aes_key_clear_loop
+    ldr     r0, [sp]
+    mov     r2, #0
+    mov     r3, #0
+    add     sp, #236        @ 0xec
+    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}

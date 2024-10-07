@@ -365,6 +365,10 @@ static void aes_key_schedule_backward_1_round(const uint8_t* x, const uint8_t* x
 }
 
 static void aes_key_schedule_backward_128_vbb_vk_round(vbb_t* vbb, uint8_t Mtag, uint8_t Mkey,
+                                                 const uint8_t* delta, bf128_t* bf_out, unsigned int j, unsigned int share);
+
+/*
+static void aes_key_schedule_backward_128_vbb_vk_round(vbb_t* vbb, uint8_t Mtag, uint8_t Mkey,
                                                  const uint8_t* delta, bf128_t* bf_out, unsigned int j, unsigned int share) {
   // Step: 1
   assert(!((Mtag == 1 && Mkey == 1) || (Mkey == 1 && delta == NULL)));
@@ -415,8 +419,10 @@ static void aes_key_schedule_backward_128_vbb_vk_round(vbb_t* vbb, uint8_t Mtag,
         bf128_add(bf_out[2 + 8 * c], bf128_mul_bit(bf_mkey_times_delta, minus_mtag));
   }
 }
+*/
 
-static void aes_key_schedule_128_masked(const uint8_t* w_share, vbb_t* vbb,
+
+static void __attribute__ ((noinline)) aes_key_schedule_128_masked(const uint8_t* w_share, vbb_t* vbb,
                                                     zk_hash_128_ctx* a0_ctx,
                                                     zk_hash_128_ctx* a1_ctx, uint8_t* k,
                                                     const faest_paramset_t* params) {
