@@ -471,7 +471,7 @@ static void __attribute__ ((noinline)) aes_key_schedule_128_masked(const uint8_t
       // instead of storing in A0, A1, hash it
       bf128_t mask1 = bf128_rand();
       bf128_t mask2 = bf128_rand();
-      const bf128_t tmp_0 = bf128_add(bf128_mul(bf_v_k_hat_share[1][r], bf_v_w_dash_hat_share[0][r]), bf128_add(bf128_mul(bf_v_k_hat_share[0][r], bf_v_w_dash_hat_share[0][r]), bf128_add(bf128_mul(bf_v_k_hat_share[0][r], bf_v_w_dash_hat_share[1][r]), mask1)));
+      const bf128_t tmp_0 = bf128_add(bf128_mul(bf_v_k_hat_share[1][r], bf_v_w_dash_hat_share[0][r]), bf128_add(bf128_mul(bf_v_w_dash_hat_share[0][r], bf_v_k_hat_share[0][r]), bf128_add(bf128_mul(bf_v_k_hat_share[0][r], bf_v_w_dash_hat_share[1][r]), mask1)));
       zk_hash_128_update(a0_ctx, tmp_0);
       const bf128_t share_0 = bf128_add(bf128_mul(part_d, part_b), bf128_add(bf128_add(bf128_mul(part_a, part_b), bf128_add(bf128_mul(part_a, part_c), mask2)), tmp_0));
       zk_hash_128_update(a1_ctx, share_0);
@@ -1363,7 +1363,7 @@ static void aes_enc_constraints_128_masked(const uint8_t* in_share, const uint8_
 
       bf128_t mask1 = bf128_rand();
       bf128_t mask2 = bf128_rand();
-      const bf128_t tmp_0 = bf128_add(bf128_mul(vs_share[1][j], vs_dash_share[0][j]), bf128_add(bf128_mul(vs_share[0][j], vs_dash_share[0][j]), bf128_add(bf128_mul(vs_share[0][j], vs_dash_share[1][j]), mask1)));
+      const bf128_t tmp_0 = bf128_add(bf128_mul(vs_share[1][j], vs_dash_share[0][j]), bf128_add(bf128_mul(vs_dash_share[0][j], vs_share[0][j]), bf128_add(bf128_mul(vs_share[0][j], vs_dash_share[1][j]), mask1)));
       zk_hash_128_update(a0_ctx, tmp_0);
       const bf128_t share_0 = bf128_add(bf128_mul(part_d, part_b), bf128_add(bf128_add(bf128_mul(part_a, part_b), bf128_add(bf128_mul(part_a, part_c), mask2)), tmp_0));
       zk_hash_128_update(a1_ctx, share_0);
