@@ -429,6 +429,7 @@ static void __attribute__ ((noinline)) aes_key_schedule_128_masked(const uint8_t
                                                     zk_hash_128_ctx* a1_ctx, uint8_t* k,
                                                     const faest_paramset_t* params) {
   uint8_t w_dash[2][4] = {0};
+  memset(w_dash, 0, sizeof(w_dash));
   bf128_t v_w_dash[2][4 * 8] = {0};
   aes_key_schedule_forward_1(w_share, k, params);
   aes_key_schedule_forward_1(w_share + FAEST_128F_L/8, k + (FAEST_128F_R + 1) * 128 / 8, params);
@@ -462,10 +463,10 @@ static void __attribute__ ((noinline)) aes_key_schedule_128_masked(const uint8_t
       bf_v_w_dash_hat_share[1][r]      = bf128_byte_combine(v_w_dash[1] + (8 * r));
     }
     for (unsigned int r = 0; r <= 3; r++) {
-      const bf128_t part_a = bf128_add(bf_v_k_hat_share[0][r], bf_k_hat_share[0][r]);
-      const bf128_t part_b = bf128_add(bf_w_dash_hat_share[0][r], bf_v_w_dash_hat_share[0][r]);
-      const bf128_t part_d = bf128_add(bf_k_hat_share[1][r], bf_v_k_hat_share[1][r]);
-      const bf128_t part_c = bf128_add(bf_v_w_dash_hat_share[1][r], bf_w_dash_hat_share[1][r]);
+      const bf128_t part_a = bf128_add_noinline(bf_v_k_hat_share[0][r], bf_k_hat_share[0][r]);
+      const bf128_t part_b = bf128_add_noinline(bf_w_dash_hat_share[0][r], bf_v_w_dash_hat_share[0][r]);
+      const bf128_t part_d = bf128_add_noinline(bf_k_hat_share[1][r], bf_v_k_hat_share[1][r]);
+      const bf128_t part_c = bf128_add_noinline(bf_v_w_dash_hat_share[1][r], bf_w_dash_hat_share[1][r]);
 
       // instead of storing in A0, A1, hash it
       bf128_t mask1 = bf128_rand();
@@ -1335,11 +1336,11 @@ static void aes_enc_constraints_128_masked(const uint8_t* in_share, const uint8_
   unsigned int w_offset = offset / 8;
   w_share += w_offset;
 
-  bf128_t s_share[2][16];
-  bf128_t vs_share[2][16];
-  bf128_t vs_share_old[2][16];
-  bf128_t s_dash_share[2][16];
-  bf128_t vs_dash_share[2][16];
+  bf128_t s_share[2][16] = {0};
+  bf128_t vs_share[2][16] = {0};
+  bf128_t vs_share_old[2][16] = {0};
+  bf128_t s_dash_share[2][16] = {0};
+  bf128_t vs_dash_share[2][16] = {0};
 
   for (unsigned int i = 0; i < FAEST_128F_R; i++){
     if (i != 0){
@@ -1350,15 +1351,15 @@ static void aes_enc_constraints_128_masked(const uint8_t* in_share, const uint8_
     aes_enc_backward_128_1_round(w_share, k_share, out_share, s_dash_share[0], i, 0);
     aes_enc_forward_backward_128(vbb, offset, in_share, out_share, 1, 0, NULL, vs_share[0], vs_share_old[0], vs_dash_share[0], i, 0);
     
-    aes_enc_forward_128_1_round(w_share + + FAEST_128F_L/8, k_share + (FAEST_128F_R + 1) * 128 / 8, in_share + MAX_LAMBDA_BYTES, s_share[1], i);
-    aes_enc_backward_128_1_round(w_share + + FAEST_128F_L/8, k_share + (FAEST_128F_R + 1) * 128 / 8, out_share + 16, s_dash_share[1], i, 1);
+    aes_enc_forward_128_1_round(w_share + FAEST_128F_L/8, k_share + (FAEST_128F_R + 1) * 128 / 8, in_share + MAX_LAMBDA_BYTES, s_share[1], i);
+    aes_enc_backward_128_1_round(w_share + FAEST_128F_L/8, k_share + (FAEST_128F_R + 1) * 128 / 8, out_share + 16, s_dash_share[1], i, 1);
     aes_enc_forward_backward_128(vbb, offset, in_share + MAX_LAMBDA_BYTES, out_share + MAX_LAMBDA_BYTES, 1, 0, NULL, vs_share[1], vs_share_old[1], vs_dash_share[1], i, 1);
 
     for (unsigned int j = 0; j < 16; j++){
-      const bf128_t part_a = bf128_add(vs_share[0][j], s_share[0][j]);
-      const bf128_t part_b = bf128_add(s_dash_share[0][j], vs_dash_share[0][j]);
-      const bf128_t part_d = bf128_add(s_share[1][j], vs_share[1][j]);
-      const bf128_t part_c = bf128_add(vs_dash_share[1][j], s_dash_share[1][j]);
+      const bf128_t part_a = bf128_add_noinline(vs_share[0][j], s_share[0][j]);
+      const bf128_t part_b = bf128_add_noinline(s_dash_share[0][j], vs_dash_share[0][j]);
+      const bf128_t part_d = bf128_add_noinline(s_share[1][j], vs_share[1][j]);
+      const bf128_t part_c = bf128_add_noinline(vs_dash_share[1][j], s_dash_share[1][j]);
 
       bf128_t mask1 = bf128_rand();
       bf128_t mask2 = bf128_rand();

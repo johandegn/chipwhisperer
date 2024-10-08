@@ -24,6 +24,15 @@
   ((UINT64_C(x7) << 56) | (UINT64_C(x6) << 48) | (UINT64_C(x5) << 40) | (UINT64_C(x4) << 32) |     \
    (UINT64_C(x3) << 24) | (UINT64_C(x2) << 16) | (UINT64_C(x1) << 8) | UINT64_C(x0))
 
+/*
+__attribute__ ((noinline)) bf128_t bf128_add_noinline(bf128_t lhs, bf128_t rhs) {
+  for (unsigned int i = 0; i != ARRAY_SIZE(lhs.values); ++i) {
+    lhs.values[i] ^= rhs.values[i];
+  }
+  return lhs;
+}
+*/
+
 // GF(2^8) implementation
 
 bf8_t bf8_rand(void) {
