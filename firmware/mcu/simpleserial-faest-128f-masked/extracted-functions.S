@@ -1059,7 +1059,7 @@ bf128_mul_clear_loop:
 bf128_add_noinline:
     sub     sp, #8
     push    {r4}
-    add     r1, sp, #4  
+    add     r1, sp, #4
     stmia   r1, {r2, r3}
     ldrd    r3, r1, [sp, #28]
     ldr     r4, [sp, #12]
@@ -1076,8 +1076,9 @@ bf128_add_noinline:
     pop     {r4}
     eors    r2, r1
     str     r2, [r0, #4]
+    add     r1, sp, #4                    // CLEAR
     add     sp, #8
-    mov     r1, #0                        // CLEAR
-    mov     r2, r1                        // CLEAR
-    mov     r3, r1                        // CLEAR
+    mov     r2, #0                        // CLEAR
+    mov     r3, r2                        // CLEAR
+    stmia   r1, {r2, r3}                  // CLEAR
     bx      lr
