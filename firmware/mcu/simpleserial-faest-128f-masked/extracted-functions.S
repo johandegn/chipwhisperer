@@ -828,3 +828,228 @@ aes_key_clear_loop:
 // END OF CLEAR
     add     sp, #236        @ 0xec
     ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
+.global bf128_mul
+bf128_mul:
+    sub     sp, #8
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    sub     sp, #300        @ 0x12c
+    add     r1, sp, #336    @ 0x150
+    stmia.w r1, {r2, r3}
+    add     r3, sp, #352    @ 0x160
+    mov     r8, r0
+    ldmia   r3, {r0, r1, r2, r3}
+    add     r6, sp, #56     @ 0x38
+    stmia.w r6, {r0, r1, r2, r3}
+    movs    r4, #0
+    movs    r5, #0
+    movs    r7, #0
+    strd    r4, r5, [sp, #40]       @ 0x28
+    strd    r4, r5, [sp, #48]       @ 0x30
+    mov     ip, r7
+    add     r5, sp, #40     @ 0x28
+    add     r4, sp, #8
+    str.w   r8, [sp, #4]
+bf128_mul_l3:
+    movs    r3, #1
+    lsl.w   r3, r3, ip
+    add.w   r2, r5, r3, lsl #4
+    ldrd    r1, r7, [r2, #8]
+    lsls    r3, r3, #4
+    adds    r1, r1, r1
+    ldr     r3, [r5, r3]
+    ldr     r0, [r2, #4]
+    mov.w   r6, r7, asr #31
+    and.w   r6, r6, #135    @ 0x87
+    adcs    r7, r7
+    adds    r3, r3, r3
+    eor.w   r6, r6, r3
+    ldr     r3, [r5, #24]
+    orr.w   r1, r1, r0, lsr #31
+    eor.w   r8, r1, r3
+    ldr     r3, [r5, #28]
+    eor.w   r9, r7, r3
+    ldr     r3, [r5, #16]
+    mov.w   r2, #2
+    eor.w   sl, r3, r6
+    ldr     r3, [r5, #20]
+    lsl.w   r2, r2, ip
+    adcs    r0, r0
+    add.w   lr, r2, #1
+    eor.w   fp, r3, r0
+    add.w   r3, r5, r2, lsl #4
+    strd    r1, r7, [r3, #8]
+    lsls    r2, r2, #4
+    add.w   r1, r5, lr, lsl #4
+    mov.w   lr, lr, lsl #4
+    str     r6, [r5, r2]
+    strd    r8, r9, [r1, #8]
+    str     r0, [r3, #4]
+    str.w   sl, [r5, lr]
+    str.w   fp, [r1, #4]
+    cmp.w   ip, #0
+    beq.n   bf128_mul_l1
+    add.w   lr, r4, r2
+    adds    r2, #8
+    mov     r1, r5
+    add     r2, r5
+bf128_mul_l2:
+    ldrd    r6, r7, [r1, #40]       @ 0x28
+    ldr     r0, [r2, #0]
+    ldr.w   r9, [r2, #-4]
+    eors    r6, r0
+    ldr     r0, [r2, #4]
+    eor.w   r8, r0, r7
+    ldr     r0, [r1, #32]
+    ldr.w   r7, [r2, #-8]
+    eors    r0, r7
+    ldr     r7, [r1, #36]   @ 0x24
+    str     r0, [r3, #32]
+    adds    r1, #16
+    eor.w   r7, r7, r9
+    cmp     lr, r1
+    strd    r7, r6, [r3, #36]       @ 0x24
+    str.w   r8, [r3, #44]   @ 0x2c
+    add.w   r3, r3, #16
+    bne.n   bf128_mul_l2
+bf128_mul_l1:
+    add.w   ip, ip, #1
+    cmp.w   ip, #3
+    bne.n   bf128_mul_l3
+    ldr.w   r8, [sp, #4]
+    movs    r2, #32
+    movs    r1, #0
+    mov     r0, r4
+    movs    r6, #0
+    bl      memset
+    mov.w   lr, #60 @ 0x3c
+    mov     ip, r6
+    str.w   r8, [sp, #4]
+bf128_mul_l6:
+    ldr.w   r9, [r4]
+    ldr     r2, [sp, #12]
+    add     r0, sp, #336    @ 0x150
+    mov     r1, r4
+    rsb     r8, lr, #32
+    sub.w   r7, lr, #32
+bf128_mul_l4:
+    ldrd    r3, sl, [r0]
+    lsl.w   fp, sl, r8
+    lsr.w   r3, r3, lr
+    lsr.w   sl, sl, r7
+    orr.w   r3, r3, fp
+    orr.w   r3, r3, sl
+    and.w   r3, r3, #15
+    add.w   sl, r5, r3, lsl #4
+    lsls    r3, r3, #4
+    adds    r0, #8
+    ldr     r3, [r5, r3]
+    eor.w   r3, r3, r9
+    str     r3, [r1, #0]
+    ldr.w   r3, [sl, #4]
+    eors    r3, r2
+    str     r3, [r1, #4]
+    ldr.w   r2, [r1, #8]!
+    ldr.w   r3, [sl, #8]
+    eor.w   r9, r2, r3
+    ldr     r3, [r1, #4]
+    ldr.w   r2, [sl, #12]
+    str.w   r9, [r1]
+    eors    r2, r3
+    add     r3, sp, #352    @ 0x160
+    cmp     r3, r0
+    str     r2, [r1, #4]
+    bne.n   bf128_mul_l4
+    sub.w   lr, lr, #4
+    cmn.w   lr, #4
+    beq.n   bf128_mul_l5
+    ldr     r1, [r4, #20]
+    ldr     r2, [r4, #12]
+    ldr.w   r8, [r4, #16]
+    ldr     r3, [r4, #4]
+    ldr     r7, [r4, #8]
+    lsrs    r0, r1, #28
+    mov.w   ip, ip, lsl #4
+    lsls    r1, r1, #4
+    orr.w   r1, r1, r8, lsr #28
+    orr.w   ip, ip, r6, lsr #28
+    orr.w   r6, r0, r6, lsl #4
+    lsrs    r0, r2, #28
+    orr.w   r0, r0, r8, lsl #4
+    str     r1, [r4, #20]
+    ldr     r1, [r4, #0]
+    str     r0, [r4, #16]
+    lsls    r2, r2, #4
+    lsrs    r0, r3, #28
+    lsls    r3, r3, #4
+    orr.w   r3, r3, r1, lsr #28
+    orr.w   r2, r2, r7, lsr #28
+    orr.w   r0, r0, r7, lsl #4
+    lsls    r1, r1, #4
+    strd    r0, r2, [r4, #8]
+    strd    r1, r3, [r4]
+    b.n     bf128_mul_l6
+bf128_mul_l5:
+    ldr     r5, [sp, #24]
+    ldr     r2, [sp, #16]
+    ldr     r7, [sp, #20]
+    ldr     r0, [sp, #28]
+    ldr     r1, [sp, #12]
+    ldr.w   r8, [sp, #4]
+    mov.w   r3, ip, lsr #30
+    eor.w   r3, r3, ip, lsr #31
+    adds.w  lr, r6, r6
+    eor.w   r3, r3, r5
+    eor.w   r2, r2, r6
+    eor.w   r3, r3, ip, lsr #25
+    ldr     r5, [r4, #0]
+    eor.w   r2, r2, lr
+    eor.w   r4, ip, r7
+    adc.w   lr, ip, ip
+    eor.w   r2, r2, r6, lsl #2
+    adds.w  r9, r3, r3
+    mov.w   r7, ip, lsl #2
+    mov.w   ip, ip, lsl #7
+    orr.w   r7, r7, r6, lsr #30
+    orr.w   ip, ip, r6, lsr #25
+    eor.w   r2, r2, r6, lsl #7
+    eor.w   r5, r5, r3
+    adc.w   r6, r0, r0
+    eors    r1, r0
+    eor.w   r4, r4, lr
+    mov.w   lr, r0, lsl #2
+    eor.w   r5, r5, r9
+    eor.w   r2, r2, r0, lsr #31
+    eors    r1, r6
+    orr.w   lr, lr, r3, lsr #30
+    lsls    r6, r0, #7
+    eors    r4, r7
+    eor.w   r2, r2, r0, lsr #30
+    eor.w   r5, r5, r3, lsl #2
+    eor.w   r1, r1, lr
+    orr.w   r6, r6, r3, lsr #25
+    eor.w   r2, r2, r0, lsr #25
+    eor.w   r4, r4, ip
+    eor.w   r5, r5, r3, lsl #7
+    eors    r1, r6
+    mov     r0, r8
+    strd    r5, r1, [r8]
+    strd    r2, r4, [r8, #8]
+// CLEAR STACK
+    mov     r1, #300
+    mov     r0, #0
+bf128_mul_clear_loop:
+    subs    r1, #4
+    str     r0, [sp, r1]
+    bne     bf128_mul_clear_loop
+    ldr     r0, [sp]
+    mov     r2, #0
+    mov     r3, #0
+// END OF CLEAR
+    add     sp, #300        @ 0x12c
+    ldmia.w sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    str     r0, [sp]                        // CLEAR
+    str     r2, [sp, #4]                    // CLEAR
+    add     sp, #8
+    bx      lr
+

@@ -334,6 +334,7 @@ ATTR_CONST static inline bf128_t bf128_shift_left_1_modulus(bf128_t value) {
   return value;
 }
 
+/*
 #define bf128_mul_w 4
 #define bf128_mul_u_amount (2 << (bf128_mul_w - 1))
 
@@ -378,6 +379,7 @@ bf128_t bf128_mul(bf128_t a, bf128_t b) {
 
   return bf128_reduce(C);
 }
+*/
 
 bf128_t bf128_mul_64(bf128_t lhs, bf64_t rhs) {
   return bf128_mul(lhs, (bf128_t){{rhs, 0}});
