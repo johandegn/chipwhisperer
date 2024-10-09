@@ -424,7 +424,7 @@ static void aes_key_schedule_backward_128_vbb_vk_round(vbb_t* vbb, bf128_t* bf_o
 */
 
 
-static void __attribute__ ((noinline)) aes_key_schedule_128_masked(const uint8_t* w_share, vbb_t* vbb,
+static void aes_key_schedule_128_masked(const uint8_t* w_share, vbb_t* vbb,
                                                     zk_hash_128_ctx* a0_ctx,
                                                     zk_hash_128_ctx* a1_ctx, uint8_t* k,
                                                     const faest_paramset_t* params) {
