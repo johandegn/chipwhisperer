@@ -1113,7 +1113,7 @@ bf128_add_wrapper:
     mov     r0, #0                        // CLEAR
     mov     r1, r0                        // CLEAR
     mov     r2, r0                        // CLEAR
-    mov     r2, r0                        // CLEAR
+    mov     r3, r0                        // CLEAR
     stmia   sp, {r0, r1, r2, r3}          // CLEAR
     add     sp, #32
     stmdb   sp, {r0, r1, r2, r3}          // CLEAR
@@ -1148,7 +1148,7 @@ bf128_mul_wrapper:
     mov     r0, #0                        // CLEAR
     mov     r1, r0                        // CLEAR
     mov     r2, r0                        // CLEAR
-    mov     r2, r0                        // CLEAR
+    mov     r3, r0                        // CLEAR
     strd    r6, r7, [sp]                  // CLEAR
     strd    r6, r7, [sp, #8]              // CLEAR
     strd    r6, r7, [sp, #16]             // CLEAR
