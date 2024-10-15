@@ -307,6 +307,7 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
       rand_mask(&owf_output_share[0][i], 1);
       owf_output_share[1][i] = owf_output[i] ^ owf_output_share[0][i];
     }
+    trigger_high();
     H3_init(&h3_ctx, lambda);
     H3_update(&h3_ctx, owf_key_shares, lambdaBytes);
     H3_update(&h3_ctx, mu_shares, lambdaBytes * 2);
@@ -336,14 +337,9 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
     vk_cache = alloca(params->faest_param.Lke * lambdaBytes);
   }
   init_stack_allocations_sign(&vbb, hcom, u, v_cache, v_buf, vk_buf, vk_cache);
-  // NOTE - changed init vbb to gen random values for vole
   init_vbb_sign(&vbb, len, rootkey, signature_iv(sig, params), signature_c(sig, 0, params), params);
 
   uint8_t chall_1[(5 * MAX_LAMBDA_BYTES) + 8];
-  // NOTE - changed to create random chall_1
-  /*
-  rand_bytes(chall_1, (5 * MAX_LAMBDA_BYTES) + 8);
-  */
   hash_challenge_1(chall_1, mu, get_com_hash(&vbb), signature_c(sig, 0, params),
                    signature_iv(sig, params), lambda, l, tau);
 
@@ -390,10 +386,8 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
     uint8_t* v_mask = alloca(ell_hat * lambdaBytes);
     uint8_t* u_mask = alloca(ell_hat/8);
     setup_mask_storage(&vbb, vk_mask, v_mask, u_mask);
-    trigger_high();
     aes_prove_masked(w_share, &vbb, &owf_input_share[0][0], &owf_output_share[0][0], chall_2,
                      signature_a_tilde(sig, params), b_tilde, params);
-    trigger_low();
   } else {
     uint8_t* w = alloca((l + 7) / 8);
     for (unsigned int i = 0; i < (l + 7) / 8; i++) {
@@ -421,6 +415,7 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
     vector_open_ondemand(&vbb, i, s_, signature_pdec(sig, i, params), signature_com(sig, i, params),
                          depth);
   }
+  trigger_low();
   // clean_vbb(&vbb);
 }
 
