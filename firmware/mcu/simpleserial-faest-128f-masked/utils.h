@@ -19,6 +19,7 @@ static inline void xor_u8_array(const uint8_t* a, const uint8_t* b, uint8_t* out
   }
 }
 
+void xor_u8_array_wrapper(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len);
 /*
 static void __attribute__ ((noinline)) xor_u8_array_wrapper(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len){
   xor_u8_array(a, b, out, len);

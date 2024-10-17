@@ -1993,6 +1993,7 @@ aes_enc_forward_backward_128_l11:
     add     sp, sp, #772    @ 0x304
     ldmia   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
+
 .global get_vk_128
 get_vk_128:
     push    {r4, r5, r6, lr}
@@ -2073,6 +2074,7 @@ vk_128_l1:
     adds    r1, r0, r3
     b       vk_128_l3
 
+
 .global bf128_sum_poly_vbb_share
 bf128_sum_poly_vbb_share:
     stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
@@ -2127,6 +2129,7 @@ bf128_sum_poly_vbb_share_loop:
     str     r1, [sp, #8]                // CLEAR
     add     sp, #12
     ldmia   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+
 
 .global xor_u8_array_wrapper
 xor_u8_array_wrapper:

@@ -308,7 +308,7 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
       owf_output_share[1][i] = owf_output[i] ^ owf_output_share[0][i];
     }
     trigger_high();
-    H3_init(&h3_ctx, lambda);
+    H3_init(&h3_ctx, lambda); // NOTE: first time init is run after flash/board reset, it used ~200 cycles more
     H3_update(&h3_ctx, owf_key_shares, lambdaBytes);
     H3_update(&h3_ctx, mu_shares, lambdaBytes * 2);
     if (rho && rholen) {
