@@ -1915,6 +1915,140 @@ aes_enc_forward_backward_128_l11:
     add     sp, sp, #772    @ 0x304
     ldmia   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
+.global get_vk_128
+get_vk_128:
+    push    {r4, r5, r6, lr}
+    cmp     r1, #127        @ 0x7f
+    sub     sp, #48 @ 0x30
+    mov     r4, r1
+    mov     r5, r0
+    bls     vk_128_l1
+    tst     r1, #96 @ 0x60
+    beq     vk_128_l2
+    subs    r1, #128        @ 0x80
+    bl      get_vk_128
+    ldmia   r0, {r0, r1, r2, r3}
+    stmia   sp, {r0, r1, r2, r3}
+    sub     r1, r4, #32
+    mov     r0, r5
+    bl      get_vk_128
+    ldmia   r0, {r0, r1, r2, r3}
+    add     r4, sp, #16
+    stmia   r4, {r0, r1, r2, r3}
+    ldrd    r4, r0, [sp, #8]
+    eors    r2, r4
+    str     r2, [sp, #40]   @ 0x28
+    ldr     r2, [sp, #28]
+    ldr     r6, [r5, #56]   @ 0x38
+    ldrd    r1, r3, [sp]
+    eors    r2, r0
+    str     r2, [sp, #44]   @ 0x2c
+    ldr     r2, [sp, #16]
+    eors    r2, r1
+    ldr     r1, [sp, #20]
+    str     r2, [sp, #32]
+    eors    r3, r1
+    str     r3, [sp, #36]   @ 0x24
+    add     r4, sp, #32
+    ldmia   r4!, {r0, r1, r2, r3}
+    str     r0, [r6, #0]
+    str     r1, [r6, #4]
+    str     r2, [r6, #8]
+    str     r3, [r6, #12]
+    ldr     r0, [r5, #56]   @ 0x38
+    add     sp, #48 @ 0x30
+    pop     {r4, r5, r6, pc}
+vk_128_l2:
+    ldr     r2, [r0, #32]
+    ldr     r0, [r0, #60]   @ 0x3c
+    ldrh    r2, [r2, #0]
+    and     r3, r1, #127    @ 0x7f
+    lsrs    r4, r1, #7
+    adds    r3, #96 @ 0x60
+    lsrs    r2, r2, #3
+    add     r3, r3, r4, lsl #5
+    mul     r3, r2, r3
+    ldr     r2, [r5, #56]   @ 0x38
+    adds    r1, r0, r3
+vk_128_l3:
+    ldr     r4, [r0, r3]
+    ldr     r0, [r1, #4]
+    ldr     r3, [r1, #8]
+    ldr     r1, [r1, #12]
+    str     r1, [r2, #12]
+    str     r4, [r2, #0]
+    str     r0, [r2, #4]
+    str     r3, [r2, #8]
+    ldr     r0, [r5, #56]   @ 0x38
+    mov     r4, r0
+    clear_stack 48 get_vk_128_clear_loop
+    mov     r0, r4
+    add     sp, #48 @ 0x30
+    pop     {r4, r5, r6, pc}
+vk_128_l1:
+    ldr     r3, [r0, #32]
+    ldr     r0, [r0, #60]   @ 0x3c
+    ldrh    r3, [r3, #0]
+    ldr     r2, [r5, #56]   @ 0x38
+    lsrs    r3, r3, #3
+    mul     r3, r1, r3
+    adds    r1, r0, r3
+    b       vk_128_l3
+
+.global bf128_sum_poly_vbb_share
+bf128_sum_poly_vbb_share:
+    stmdb   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    sub     sp, #12
+    mov     r4, r1
+    mov     r8, r2
+    str     r1, [sp, #0]
+    mov     r2, r3
+    mov     fp, r0
+    add     r1, r8, #127    @ 0x7f
+    mov     r0, r4
+    mov     sl, r3
+    bl      get_vole_aes_128_share
+    ldrd    r4, r6, [r0]
+    ldrd    r3, r5, [r0, #8]
+    add     r7, r8, #126    @ 0x7e
+    str     fp, [sp, #4]
+bf128_sum_poly_vbb_share_loop:
+    adds    r3, r3, r3
+    mov     r1, r7
+    ldr     r0, [sp, #0]
+    mov     r2, sl
+    adc     fp, r5, r5
+    orr     r9, r3, r6, lsr #31
+    bl      get_vole_aes_128_share
+    ldr     r3, [r0, #0]
+    ldr     r1, [r0, #4]
+    adds    r4, r4, r4
+    eor     r4, r4, r3
+    mov     r5, r5, asr #31
+    ldr     r3, [r0, #8]
+    ldr     r0, [r0, #12]
+    adcs    r6, r6
+    and     r5, r5, #135    @ 0x87
+    cmp     r8, r7
+    eor     r4, r4, r5
+    eor     r3, r9, r3
+    eor     r6, r6, r1
+    eor     r5, fp, r0
+    add     r7, r7, #4294967295     @ 0xffffffff
+    bne     bf128_sum_poly_vbb_share_loop
+    ldr     fp, [sp, #4]
+    mov     r0, fp
+    strd    r4, r6, [fp]
+    strd    r3, r5, [fp, #8]
+    mov     r0, #0                      // CLEAR
+    mov     r1, #0                      // CLEAR
+    mov     r2, r1                      // CLEAR
+    mov     r3, r1                      // CLEAR
+    str     r1, [sp, #0]                // CLEAR
+    str     r1, [sp, #4]                // CLEAR
+    str     r1, [sp, #8]                // CLEAR
+    add     sp, #12
+    ldmia   sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
 
 .global bf8_inv_masked
 bf8_inv_masked:

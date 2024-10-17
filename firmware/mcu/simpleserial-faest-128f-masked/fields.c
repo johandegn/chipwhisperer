@@ -440,7 +440,8 @@ bf128_t bf128_sum_poly_vbb(vbb_t* vbb, unsigned int offset) {
   }
   return ret;
 }
-
+bf128_t bf128_sum_poly_vbb_share(vbb_t* vbb, unsigned int offset, int share);
+/*
 bf128_t bf128_sum_poly_vbb_share(vbb_t* vbb, unsigned int offset, int share) {
   bf128_t ret = *get_vole_aes_128_share(vbb, offset + 128 - 1, share);
   for (size_t i = 1; i < 128; ++i) {
@@ -448,6 +449,7 @@ bf128_t bf128_sum_poly_vbb_share(vbb_t* vbb, unsigned int offset, int share) {
   }
   return ret;
 }
+*/
 
 // GF(2^192) implementation
 
