@@ -515,11 +515,18 @@ const uint8_t* get_com_hash(vbb_t* vbb) {
 // V_k cache
 
 static void setup_vk_cache(vbb_t* vbb) {
-  unsigned int lambda_bytes = vbb->params->faest_param.lambda / 8;
+  unsigned int lambda = vbb->params->faest_param.lambda ;
+  unsigned int lambda_bytes = lambda / 8;
   if (is_em_variant(vbb->params->faest_paramid)) {
     return;
   }
 
+  if (lambda == 128 && vbb->party == SIGNER){
+    for (unsigned int i = 0; i < lambda; i++) {
+      memcpy(vbb->vk_cache + i * lambda_bytes, get_vole_aes(vbb, i), lambda_bytes);
+    }
+    return; 
+  }
   for (unsigned int i = 0; i < vbb->params->faest_param.Lke; i++) {
     unsigned int offset = i * lambda_bytes;
     memcpy(vbb->vk_cache + offset, get_vole_aes(vbb, i), lambda_bytes);
@@ -527,11 +534,11 @@ static void setup_vk_cache(vbb_t* vbb) {
 }
 
 static inline uint8_t* get_vk(vbb_t* vbb, unsigned int idx) {
-  assert(idx < vbb->params->faest_param.Lke);
   unsigned int offset = idx * (vbb->params->faest_param.lambda / 8);
   return (vbb->vk_cache + offset);
 }
 
+/*
 const bf128_t* get_vk_128(vbb_t* vbb, unsigned int idx) {
   if (idx < FAEST_128F_LAMBDA) {
     const bf128_t* vk = (bf128_t*)get_vk(vbb, idx);
@@ -561,6 +568,7 @@ const bf128_t* get_vk_128(vbb_t* vbb, unsigned int idx) {
   memcpy(vbb->vk_buf, &vk, sizeof(bf128_t));
   return (bf128_t*)vbb->vk_buf;
 }
+*/
 
 const bf192_t* get_vk_192(vbb_t* vbb, unsigned int idx) {
   if (idx < FAEST_192F_LAMBDA) {
@@ -713,5 +721,16 @@ const bf128_t* get_vk_128_share(vbb_t* vbb, unsigned int idx, unsigned int share
     return vk;
   } else {
     return get_vk_128(vbb, idx);
+  }
+}
+
+void add_vole_to_vk_cache_share(vbb_t* vbb, unsigned int idx, bf128_t* VOLE, unsigned int share){
+  const unsigned int lambda       = vbb->params->faest_param.lambda;
+  const unsigned int lambda_bytes = lambda / 8;
+  unsigned int offset = idx * lambda_bytes;
+  if (share == 1) {
+    memcpy(vbb->vk_cache + offset, VOLE, lambda_bytes);
+  } else {
+    memcpy(vbb->vk_mask_cache + offset, VOLE, lambda_bytes);
   }
 }
