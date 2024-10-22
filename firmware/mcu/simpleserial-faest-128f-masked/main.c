@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "api.h"
+#include "parameters.h"
 #include "faest_128f.h"
 #include "fields.h"
 #include "hal.h"
@@ -124,12 +125,18 @@ uint8_t sign() {
     */
 
 
-    /*
-    */
+    /* sign with randomness
     size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
     //trigger_high();
     int res = faest_128f_sign(sk, msg, msg_size, sig, &sig_size);
     //trigger_low();
+    return res;
+    */
+
+    size_t sig_size = FAEST_128F_SIGNATURE_SIZE;
+    uint8_t rho[FAEST_128F_LAMBDA / 8];
+    memset(rho, 0, sizeof(rho));
+    int res = faest_128f_sign_with_randomness(sk, msg, msg_size, rho, sizeof(rho), sig, &sig_size);
     return res;
 
     return 0;
