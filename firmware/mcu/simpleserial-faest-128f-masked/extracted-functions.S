@@ -37,15 +37,15 @@ aes_increment_iv:
     add     r2, r0, #16
     movs    r1, #1
 aes_increment_iv_l:
-    ldrb    r3, [r2, #-1]!
-    add     r3, r1
-    uxtb    r3, r3
-    cmp     r3, #0
+    ldr     r3, [r2, #-4]!
+    rev     r3, r3
+    adds    r3, r1
     ite     ne
     movne   r1, #0
     moveq   r1, #1
     cmp     r0, r2
-    strb    r3, [r2, #0]
+    rev     r3, r3
+    str     r3, [r2, #0]
     bne     aes_increment_iv_l
     bx      lr
 
