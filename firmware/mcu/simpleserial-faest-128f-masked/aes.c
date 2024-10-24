@@ -96,16 +96,18 @@ static bf8_t compute_sbox(bf8_t in) {
   return affine_table[t];
 }
 
+// Moved to assmelby to ensure constant time
+void aes_increment_iv(uint8_t* iv);
+/*
 void aes_increment_iv(uint8_t* iv) {
+  uint8_t val = 1;
+  // Constant time increment
   for (unsigned int i = 16; i > 0; i--) {
-    if (iv[i - 1] == 0xff) {
-      iv[i - 1] = 0x00;
-      continue;
-    }
-    iv[i - 1] += 0x01;
-    break;
+    iv[i - 1] += val;
+    val = val * !iv[i - 1];
   }
 }
+*/
 
 // ## AES ##
 // Round Functions
