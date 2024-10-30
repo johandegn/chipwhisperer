@@ -1,6 +1,36 @@
 .syntax unified
 .thumb
 
+.global clean_call
+clean_call:
+    push    {r4, r5, r6, r7, r8, r9, r10, lr}
+    mov     r0, #0
+    mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
+    mov     r4, #0
+    mov     r5, #0
+    mov     r6, #0
+    mov     r7, #0
+    mov     r8, #0
+    mov     r9, #0
+    mov     r10, #0
+
+    mov     r1, #100
+    mov     r3, sp
+clean_call_loop:
+    str     r0, [r3, #-4]!
+    subs    r1, r1, #1
+    bne     clean_call_loop
+
+    mov     r1, #0
+    mov     r3, #0
+
+    bl      sign
+
+    mov    r0, #0
+    pop    {r4, r5, r6, r7, r8, r9, r10, pc}
+
 .macro clear_stack, n
     mov     r1, #0
     .set    offset, 0

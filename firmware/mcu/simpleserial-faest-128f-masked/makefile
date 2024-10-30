@@ -37,10 +37,12 @@ TARGET = simpleserial-faest-128f-masked
 SRC += main.c
 
 SRC += aes.c
+SRC += aes_masked.c
 SRC += compat.c
 SRC += crypto_sign.c
 SRC += faest_128f.c
 SRC += faest_aes.c
+SRC += faest_aes_masked.c
 SRC += faest.c
 SRC += fields.c
 SRC += instances.c
@@ -61,20 +63,18 @@ SRC += KeccakHashtimes4.c
 SRC += KeccakMPCHash.c
 SRC += KeccakMPCSponge.c
 SRC += KeccakP-1600-mpc.c
-#SRC += KeccakP-1600-times4-on1.c
 SRC += KeccakSponge.c
-#SRC += KeccakSpongetimes4.c
-
-#SRC += fips202.c
 SRC += keccakf1600.c
 
 
+ASRC += aes_masked_.S
+ASRC += faest_aes_.S
+ASRC += fields_.S 
 ASRC += aes-encrypt.S
 ASRC += aes-keyschedule.S
 ASRC += aes-publicinputs_.S
 ASRC += keccakf1600.S
 ASRC += KeccakP-1600-mpc_.S
-ASRC += extracted-functions.S
 
 
 # -----------------------------------------------------------------------------
