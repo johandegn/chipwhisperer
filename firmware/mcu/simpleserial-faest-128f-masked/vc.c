@@ -131,18 +131,6 @@ void vector_open(vec_com_t* vec_com, const uint8_t* b, uint8_t* cop, uint8_t* co
     uint8_t* dst_child = children + (lambda_bytes * save_left);
     node = children + (lambda_bytes * !save_left);
     memcpy(cop + (lambda_bytes * i), dst_child, lambda_bytes);
-
-    /*
-    // b = 0 => Right
-    // b = 1 => Left
-    if (save_left) {
-      memcpy(cop + (lambda_bytes * i), l_child, lambda_bytes);
-      node = r_child;
-    } else {
-      memcpy(cop + (lambda_bytes * i), r_child, lambda_bytes);
-      node = l_child;
-    }
-    */
   }
 
   // Step: 7
