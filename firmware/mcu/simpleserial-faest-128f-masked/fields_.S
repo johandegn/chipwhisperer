@@ -49,6 +49,8 @@ bf8_mul:
     bl      bf8_reduce
     // CLEAR STACK
     mov     r1, #0
+    mov     r2, #0
+    mov     r3, #0
     str     r1, [sp]
     str     r1, [sp, #4]
     str     r1, [sp, #8]

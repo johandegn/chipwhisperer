@@ -529,8 +529,9 @@ bf8_inv_masked:
     ldrb    r0, [r8]
     mov     r1, r4
     bl      bf8_mul
-    ldrb    r1, [r7, #0]
     mov     r8, r0
+    mov     r0, #0
+    ldrb    r1, [r7, #0]
     mov     r0, r4
     bl      bf8_mul
     eor     r0, r8, r0
