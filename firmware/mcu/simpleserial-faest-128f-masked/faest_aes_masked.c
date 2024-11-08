@@ -319,7 +319,7 @@ void __attribute__ ((noinline)) aes_enc_hash_loop( bf128_t s_share[2][16], bf128
   zk_hash_128_update(a1_ctx + 1, share_1);
 }
 
-static void  __attribute__ ((noinline)) aes_enc_constraints_128_masked(const uint8_t* in_share, const uint8_t* out_share, const uint8_t* w_share,
+static void aes_enc_constraints_128_masked(const uint8_t* in_share, const uint8_t* out_share, const uint8_t* w_share,
                                            vbb_t* vbb, unsigned int offset, const uint8_t* k_share,
                                            zk_hash_128_ctx* a0_ctx, zk_hash_128_ctx* a1_ctx) {
   unsigned int w_offset = offset / 8;
