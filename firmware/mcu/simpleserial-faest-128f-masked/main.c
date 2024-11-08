@@ -81,7 +81,7 @@ uint8_t clean_call_wrapper(uint8_t* m, uint8_t len) {
 }
 
 
-uint8_t sign() {
+uint8_t sign(uint8_t* m, uint8_t len) {
     /* inv_masked
     bf8_t in_share[2] = {msg[0], 0};
     in_share[1] = in_share[0] ^ sk[16+12 + 0];
@@ -160,7 +160,7 @@ int main(void) {
 
     simpleserial_addcmd('g', 0, key_gen);
     simpleserial_addcmd('r', 0, msg_gen);
-    simpleserial_addcmd('s', 0, clean_call_wrapper);
+    simpleserial_addcmd('s', 0, sign);
     /*
     //Reserved simpleserial commands: 'v', 'y', 'w'
     simpleserial_addcmd('e', 0, encrypt);

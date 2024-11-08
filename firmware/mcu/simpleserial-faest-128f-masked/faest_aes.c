@@ -13,7 +13,6 @@
 #include "universal_hashing.h"
 #include "utils.h"
 #include "parameters.h"
-#include "randomness.h"
 #include <stdio.h>
 
 #include <string.h>

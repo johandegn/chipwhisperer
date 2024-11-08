@@ -318,7 +318,6 @@ void faest_sign_masked(uint8_t* sig, const uint8_t* msg, size_t msglen, const ui
   }
 
   vbb_t vbb;
-  // TODO: find a solution for setting argument (dynamic or static)?
   const unsigned int len = ell_hat;
   uint8_t* hcom          = alloca(MAX_LAMBDA_BYTES * 2);
   uint8_t* u             = alloca(ell_hat / 8);
@@ -327,12 +326,11 @@ void faest_sign_masked(uint8_t* sig, const uint8_t* msg, size_t msglen, const ui
   uint8_t* vk_buf        = NULL;
   uint8_t* vk_cache      = NULL;
   if (!(params->faest_paramid > 6)) {
-    vk_buf   = alloca(lambdaBytes);
-    vk_cache = alloca(params->faest_param.Lke * lambdaBytes);
+    vk_buf        = alloca(lambdaBytes);
+    vk_cache      = alloca(params->faest_param.Lke * lambdaBytes);
   }
   init_stack_allocations_sign(&vbb, hcom, u, v_cache, v_buf, vk_buf, vk_cache);
   init_vbb_sign(&vbb, len, rootkey, signature_iv(sig, params), signature_c(sig, 0, params), params);
-
   uint8_t chall_1[(5 * MAX_LAMBDA_BYTES) + 8];
   hash_challenge_1(chall_1, mu, get_com_hash(&vbb), signature_c(sig, 0, params),
                    signature_iv(sig, params), lambda, l, tau);
@@ -453,7 +451,8 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
       rand_mask(&owf_output_share[0][i], 1);
       owf_output_share[1][i] = owf_output[i] ^ owf_output_share[0][i];
     }
-    H3_init(&h3_ctx, lambda); // NOTE: first time init is run after flash/board reset, it used ~200 cycles more
+
+    H3_init(&h3_ctx, lambda);
     H3_update(&h3_ctx, owf_key_shares, lambdaBytes);
     H3_update(&h3_ctx, mu_shares, lambdaBytes * 2);
     if (rho && rholen) {
@@ -479,14 +478,16 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
   uint8_t* vk_buf        = NULL;
   uint8_t* vk_cache      = NULL;
   if (!(params->faest_paramid > 6)) {
-    vk_buf   = alloca(lambdaBytes);
-    vk_cache = alloca(params->faest_param.Lke * lambdaBytes);
+    vk_buf        = alloca(lambdaBytes);
+    vk_cache      = alloca(params->faest_param.Lke * lambdaBytes);
   }
   init_stack_allocations_sign(&vbb, hcom, u, v_cache, v_buf, vk_buf, vk_cache);
   init_vbb_sign(&vbb, len, rootkey, signature_iv(sig, params), signature_c(sig, 0, params), params);
+
   uint8_t chall_1[(5 * MAX_LAMBDA_BYTES) + 8];
   hash_challenge_1(chall_1, mu, get_com_hash(&vbb), signature_c(sig, 0, params),
                    signature_iv(sig, params), lambda, l, tau);
+
   vole_hash(signature_u_tilde(sig, params), chall_1, get_vole_u(&vbb), l, lambda);
 
   prepare_hash_sign(&vbb);
