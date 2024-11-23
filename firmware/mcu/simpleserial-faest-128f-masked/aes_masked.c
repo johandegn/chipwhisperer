@@ -38,7 +38,7 @@ void __attribute__ ((noinline)) sub_words_masked(bf8_t* words) {
   }
 }
 
-void expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key_share,
+void __attribute__ ((noinline)) expand_128key_masked(aes_round_keys_t* round_keys_share, const uint8_t* key_share,
                           unsigned int key_words, unsigned int block_words,
                           unsigned int num_rounds);
 
