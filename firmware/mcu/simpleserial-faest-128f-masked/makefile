@@ -68,6 +68,7 @@ SRC += keccakf1600.c
 
 
 ASRC += aes_masked_.S
+ASRC += sbox_masked.S
 ASRC += faest_aes_.S
 ASRC += fields_.S 
 ASRC += aes-encrypt.S
