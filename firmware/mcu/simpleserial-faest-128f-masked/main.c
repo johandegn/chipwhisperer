@@ -57,15 +57,6 @@ static uint8_t get_msg(uint8_t* m, uint8_t len) {
 static uint8_t key_gen(uint8_t* m, uint8_t len) {
     int res = faest_128f_keygen(pk, sk);
     return res;
-    //rand_bytes(&sk[0], CRYPTO_SECRETKEYBYTES);
-    /*
-    for (unsigned int i = 0; i < CRYPTO_SECRETKEYBYTES; i++) {
-        do {
-            rand_bytes(sk + i, 1);
-        } while (sk[i] == 0);
-    }
-    return 0;
-    */
 }
 
 static uint8_t msg_gen(uint8_t* m, uint8_t len) {
@@ -73,56 +64,77 @@ static uint8_t msg_gen(uint8_t* m, uint8_t len) {
     return 0;
 }
 
-extern uint8_t clean_call(uint8_t* m, uint8_t len);
-
-uint8_t clean_call_wrapper(uint8_t* m, uint8_t len) {
-    clean_call(m, len);
+static uint8_t get_sig(uint8_t* m, uint8_t len) {
+    simpleserial_put('o', msg_size, sig);
     return 0;
 }
 
+unsigned char sub_words_input[4] = {0};
+unsigned char sub_words_mask[4] = {0};
+unsigned char s_box_input[4] = {0,0,0,0};
+unsigned char s_box_mask[4] = {0,0,0,0};
+unsigned char super_s_box[25] = {0};
+static uint8_t rnd_s_box(uint8_t* m, uint8_t len) {
+    s_box_input[0] = 0;
+    while(s_box_input[0] == 0){
+        rand_bytes(s_box_input, 1);
+    }
+    rand_bytes(s_box_mask, 1);
+    s_box_input[0] = s_box_input[0] ^ s_box_mask[0];
+
+    sub_words_input[0] = 0;
+    while(sub_words_input[0] == 0){
+        rand_bytes(sub_words_input, 1);
+    }
+    sub_words_input[1] = 0;
+    while(sub_words_input[1] == 0){
+        rand_bytes(sub_words_input+1, 1);
+    }
+    sub_words_input[2] = 0;
+    while(sub_words_input[2] == 0){
+        rand_bytes(sub_words_input+2, 1);
+    }
+    sub_words_input[3] = 0;
+    while(sub_words_input[3] == 0){
+        rand_bytes(sub_words_input+3, 1);
+    }
+    return 0;
+}
+
+static uint8_t set_s_box(uint8_t* m, uint8_t len) {
+    s_box_input[0] = 9;
+    rand_bytes(s_box_mask, 1);
+    s_box_input[0] = s_box_input[0] ^ s_box_mask[0];
+    
+    sub_words_input[0] = 0x01;
+    sub_words_input[1] = 0xff;
+    sub_words_input[2] = 0xaa;
+    sub_words_input[3] = 0xb2;
+    return 0;
+}
 
 uint8_t sign(uint8_t* m, uint8_t len) {
-    /* inv_masked
-    bf8_t in_share[2] = {msg[0], 0};
-    in_share[1] = in_share[0] ^ sk[16+12 + 0];
-    bf8_t out_share[2] = {0, 0};
-    // arm assembly to set r2 and r3 to 0
-    trigger_high();
-    bf8_inv_masked(in_share, out_share);
-    trigger_low();
-    */
 
     /* sbox_masked
-    bf8_t in_share[2] = {msg[0], 0};
-    in_share[1] = in_share[0] ^ sk[16+12 + 0];
-    bf8_t out_share[2] = {0, 0};
     trigger_high();
-    compute_sbox_masked(in_share, out_share);
+    compute_sbox_masked(s_box_input, s_box_mask);
+    trigger_low();
+
+    // Stack based setup
+    bf8_t tmp_share[2][AES_NR];
+    for (int i = 0; i < AES_NR; i++) {
+        rand_mask(tmp_share[0] + i, 1);
+        tmp_share[1][i] = sub_words_input[i] ^ tmp_share[0][i];
+    }
+    //compute_sbox_masked(s_box_input, s_box_mask);
+    rand_mask(s_box_mask, 1);
+    trigger_high();
+    //sub_words_masked(tmp_share);
+    compute_sbox_masked(tmp_share[0], tmp_share[1]);
     trigger_low();
     */
 
-    /* sub_words_masked
-    bf8_t words[8] = {msg[0], msg[1], msg[2], msg[3], msg[0] ^ sk[16+12 + 0], msg[1] ^ sk[16+12 + 1], msg[2] ^ sk[16+12 + 2], msg[3] ^ sk[16+12 + 3]};
-    trigger_high();
-    sub_words_masked(words);
-    trigger_low();
-    */
-   
-    /* sub_bytes_masked
-#define AES_BLOCK_WORDS 4
-    aes_block_t state_share[2] = {0};
-    //load_state(state_share[0], msg, AES_BLOCK_WORDS);
-    //memcpy(state_share[0], msg, 16);
-    for (unsigned int c = 0; c < AES_BLOCK_WORDS; c++) {
-        for (unsigned int r = 0; r < AES_NR; r++) {
-            state_share[0][c][r] = msg[c * AES_NR + r];
-            state_share[1][c][r] = state_share[0][c][r] ^ (sk[c * AES_NR + r]);
-        }
-    }
-    trigger_high();
-    sub_bytes_masked(state_share, AES_BLOCK_WORDS);
-    trigger_low();
-    */
+
 
 
     /* sign with randomness
@@ -150,6 +162,7 @@ int main(void) {
     trigger_setup();
 
     key_gen(0, 0);
+    msg_gen(0, 0);
 
     simpleserial_init();
 
@@ -161,6 +174,10 @@ int main(void) {
     simpleserial_addcmd('g', 0, key_gen);
     simpleserial_addcmd('r', 0, msg_gen);
     simpleserial_addcmd('s', 0, sign);
+
+    simpleserial_addcmd('a', 0, set_s_box);
+    simpleserial_addcmd('b', 0, rnd_s_box);
+    simpleserial_addcmd('c', 0, get_sig);
     /*
     //Reserved simpleserial commands: 'v', 'y', 'w'
     simpleserial_addcmd('e', 0, encrypt);
