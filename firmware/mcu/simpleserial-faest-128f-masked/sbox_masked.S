@@ -12,36 +12,7 @@ compute_sbox_masked:
     mov     r5, r0
     mov     r4, r1
     bl      bf8_inv_masked
-// 659
-/*
-    // CLEAR temp registers and ldr-str pipeline
-    ldr     r6, [sp, #8]
-    mov     r0, #0
-    mov     r1, #0 
-    eor     r1, r0, r0
-    mov     r2, #0
-    mov     r3, #0
-    str     r6, [sp, #8]
 
-    ldrb    r0, [r5, #0]
-    bl      affine_incomplete
-    strb    r0, [r5, #0]
-// 681
-    // CLEAR temp registers and ldr-str pipeline
-    ldr     r6, [sp, #8]
-    mov     r0, #0
-    mov     r1, #0 
-    eor     r1, r0, r0
-    mov     r3, #0
-    mov     r2, #0
-    str     r6, [sp, #8]
-
-    ldrb    r0, [r4, #0]
-    bl      affine_incomplete
-    eor     r0, r0, #0x63
-    strb    r0, [r4, #0]
- */
-// 3056
     // CLEAR temp registers and ldr-str pipeline
     ldrb    r6, [sp, #8]
     ldr     r6, [sp, #8]
