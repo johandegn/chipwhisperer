@@ -248,7 +248,8 @@ static void hash_challenge_3(uint8_t* chall_3, const uint8_t* chall_2, const uin
   H2_update(&h2_ctx_2, b_tilde, lambda_bytes);
   H2_final(&h2_ctx_2, chall_3, lambda_bytes);
 }
-
+//#define MASKING
+#ifdef MASKING
 void faest_sign_masked(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* owf_key,
                 const uint8_t* owf_input, const uint8_t* owf_output, const uint8_t* rho,
                 size_t rholen, const faest_paramset_t* params){
@@ -384,11 +385,11 @@ void faest_sign_masked(uint8_t* sig, const uint8_t* msg, size_t msglen, const ui
   }
   trigger_low();
 }
+#endif
 
 void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* owf_key,
                 const uint8_t* owf_input, const uint8_t* owf_output, const uint8_t* rho,
                 size_t rholen, const faest_paramset_t* params) {
-#define MASKING
 #ifdef MASKING
   if (params->faest_paramid == 1 || params->faest_paramid == 2) {
     faest_sign_masked(sig, msg, msglen, owf_key, owf_input, owf_output, rho, rholen, params);
@@ -402,7 +403,7 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
   const unsigned int tau         = params->faest_param.tau;
   const unsigned int tau0        = params->faest_param.t0;
   const unsigned int ell_hat     = l + lambda * 2 + UNIVERSAL_HASH_B_BITS;
-
+  /*
   uint8_t mu[MAX_LAMBDA_BYTES * 2];
   hash_mu(mu, owf_input, owf_output, params->faest_param.pkSize / 2, msg, msglen, lambda);
 
@@ -503,9 +504,12 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
     }
     H1_final(&h1_ctx_1, h_v, lambdaBytes * 2);
   }
-
+  */
   uint8_t* w = alloca((l + 7) / 8);
+  trigger_high();
   w          = aes_extend_witness(owf_key, owf_input, params, w);
+  trigger_low();
+  /*
   xor_u8_array(w, get_vole_u(&vbb), signature_d(sig, params), ell_bytes);
 
   uint8_t chall_2[3 * MAX_LAMBDA_BYTES + 8];
@@ -529,6 +533,7 @@ void faest_sign(uint8_t* sig, const uint8_t* msg, size_t msglen, const uint8_t* 
     vector_open_ondemand(&vbb, i, s_, signature_pdec(sig, i, params), signature_com(sig, i, params),
                          depth);
   }
+  */
 }
 
 int faest_verify(const uint8_t* msg, size_t msglen, const uint8_t* sig, const uint8_t* owf_input,

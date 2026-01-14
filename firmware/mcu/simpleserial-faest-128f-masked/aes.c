@@ -91,7 +91,7 @@ bf8_t affine_incomplete(bf8_t b) {
   return affine_incomplete_table[b];
 }
 
-static bf8_t compute_sbox(bf8_t in) {
+bf8_t compute_sbox(bf8_t in) {
   bf8_t t = bf8_inv(in);
   return affine_table[t];
 }

@@ -79,8 +79,8 @@ static uint8_t rnd_s_box(uint8_t* m, uint8_t len) {
     while(s_box_input[0] == 0){
         rand_bytes(s_box_input, 1);
     }
-    rand_bytes(s_box_mask, 1);
-    s_box_input[0] = s_box_input[0] ^ s_box_mask[0];
+    //rand_bytes(s_box_mask, 1);
+    //s_box_input[0] = s_box_input[0] ^ s_box_mask[0];
 
     sub_words_input[0] = 0;
     while(sub_words_input[0] == 0){
@@ -103,8 +103,8 @@ static uint8_t rnd_s_box(uint8_t* m, uint8_t len) {
 
 static uint8_t set_s_box(uint8_t* m, uint8_t len) {
     s_box_input[0] = 9;
-    rand_bytes(s_box_mask, 1);
-    s_box_input[0] = s_box_input[0] ^ s_box_mask[0];
+   // rand_bytes(s_box_mask, 1);
+    //s_box_input[0] = s_box_input[0] ^ s_box_mask[0];
     
     sub_words_input[0] = 0x01;
     sub_words_input[1] = 0xff;
@@ -112,12 +112,14 @@ static uint8_t set_s_box(uint8_t* m, uint8_t len) {
     sub_words_input[3] = 0xb2;
     return 0;
 }
+bf8_t compute_sbox(bf8_t in);
 
 uint8_t sign(uint8_t* m, uint8_t len) {
 
     /* sbox_masked
     trigger_high();
-    compute_sbox_masked(s_box_input, s_box_mask);
+    //compute_sbox_masked(s_box_input, s_box_mask);
+    compute_sbox(s_box_input[0]);
     trigger_low();
 
     // Stack based setup
